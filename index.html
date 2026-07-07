@@ -16,28 +16,51 @@
 <script src="firebase-auth-compat.js"></script>
 <script src="firebase-firestore-compat.js"></script>
 <style>
+:root{
+  /* palette */
+  --bg:#0f0f13;--surface:#111320;--surface-2:#13131f;--surface-3:#1a1a2e;
+  --border:#2a2a4a;--border-subtle:#1e1e35;
+  --accent:#7b6eff;--red:#e63946;--green:#4ade80;--blue:#38bdf8;--orange:#fb923c;
+  --text:#e8e8e8;--text-dim:#94a3b8;--text-faint:#64748b;
+  /* type scale — min body 0.85rem; --fs-fine for true fine print only */
+  --fs-fine:.72rem;--fs-sm:.85rem;--fs-md:.95rem;--fs-lg:1.1rem;--fs-xl:1.25rem;
+  /* metrics */
+  --radius:10px;--tap:44px;
+  --nav-h:56px;--safe-b:env(safe-area-inset-bottom);
+}
 *{box-sizing:border-box;margin:0;padding:0}
-body{background:#0f0f13;color:#e8e8e8;font-family:'Segoe UI',system-ui,sans-serif;min-height:100vh}
-header{background:linear-gradient(135deg,#1a1a2e,#16213e);padding:16px 20px;border-bottom:1px solid #2a2a4a;display:flex;align-items:center;gap:12px}
-header h1{font-size:1.4rem;font-weight:700;color:#fff}
-header .badge{background:#e63946;color:#fff;font-size:.65rem;font-weight:700;padding:2px 7px;border-radius:20px;letter-spacing:.5px}
-nav{display:flex;gap:4px;padding:10px 16px;background:#13131f;border-bottom:1px solid #1e1e30;overflow-x:auto;flex-wrap:nowrap}
-nav button{background:none;border:none;color:#888;font-size:.8rem;font-weight:600;padding:6px 12px;border-radius:8px;cursor:pointer;white-space:nowrap;transition:all .2s}
-nav button.active,nav button:hover{background:#1e1e35;color:#e8e8e8}
-nav button.active{color:#7b6eff}
+body{background:var(--bg);color:var(--text);font-family:'Segoe UI',system-ui,sans-serif;min-height:100vh;padding-bottom:calc(var(--nav-h) + var(--safe-b) + 8px)}
+button{min-height:var(--tap)}
+/* HEADER (compact, one row) */
+header{background:linear-gradient(135deg,var(--surface-3),#16213e);border-bottom:1px solid var(--border);display:flex;align-items:center;gap:10px;padding:12px 16px;padding-top:calc(12px + env(safe-area-inset-top))}
+header h1{font-size:var(--fs-xl);font-weight:700;color:#fff}
+header .badge{background:var(--red);color:#fff;font-size:.58rem;font-weight:700;padding:2px 6px;border-radius:20px;letter-spacing:.5px;min-height:0}
+.sync-chip{margin-left:auto;display:flex;align-items:center;gap:6px;background:rgba(255,255,255,.06);border:1px solid var(--border);border-radius:20px;padding:6px 11px;min-height:38px;cursor:pointer;color:var(--text-dim);font-size:var(--fs-fine);font-weight:600;white-space:nowrap}
+.sync-chip .dot{width:8px;height:8px;border-radius:50%;background:var(--text-faint);flex-shrink:0}
+.sync-chip.synced .dot{background:var(--green)}
+.sync-chip.error .dot{background:var(--red)}
+.sync-chip svg{width:15px;height:15px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+/* BOTTOM TAB BAR */
+nav{position:fixed;left:0;right:0;bottom:0;z-index:100;display:flex;background:var(--surface-2);border-top:1px solid var(--border-subtle);padding-bottom:var(--safe-b)}
+nav button{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;background:none;border:none;color:var(--text-faint);font-size:.62rem;font-weight:600;padding:8px 4px 6px;min-height:var(--nav-h);cursor:pointer;transition:color .15s}
+nav button svg{width:22px;height:22px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+nav button.active{color:var(--accent)}
+/* TOAST */
+.toast{position:fixed;left:50%;bottom:calc(var(--nav-h) + var(--safe-b) + 16px);transform:translateX(-50%) translateY(16px);background:#0d1424;border:1px solid var(--border);color:var(--text);font-size:var(--fs-sm);font-weight:600;padding:11px 16px;border-radius:var(--radius);box-shadow:0 6px 24px rgba(0,0,0,.5);opacity:0;transition:opacity .2s,transform .2s;z-index:2000;max-width:88%;text-align:center;pointer-events:none}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
 .tab-content{display:none;padding:16px;max-width:900px;margin:0 auto}
 .tab-content.active{display:block}
 /* WEEK/PHASE BAR */
-.phase-bar{display:flex;gap:8px;margin-bottom:14px;align-items:center;flex-wrap:wrap}
-.phase-bar label{font-size:.75rem;color:#888}
-.wk-btn{background:#1a1a2e;border:1px solid #2a2a4a;color:#888;font-size:.72rem;font-weight:600;padding:4px 9px;border-radius:6px;cursor:pointer}
-.wk-btn.active{background:#7b6eff;border-color:#7b6eff;color:#fff}
-.phase-label{font-size:.72rem;color:#7b6eff;font-weight:700;margin-left:4px}
+.phase-bar{display:flex;gap:8px;margin-bottom:12px;align-items:center}
+.phase-bar label{font-size:var(--fs-fine);color:var(--text-dim);flex-shrink:0}
+.wk-btn{background:var(--surface-3);border:1px solid var(--border);color:var(--text-dim);font-size:var(--fs-sm);font-weight:600;padding:0 12px;border-radius:8px;cursor:pointer;min-height:var(--tap);min-width:var(--tap);display:inline-flex;align-items:center;justify-content:center;flex-shrink:0}
+.wk-btn.active{background:var(--accent);border-color:var(--accent);color:#fff}
+.phase-label{font-size:var(--fs-fine);color:var(--accent);font-weight:700}
 /* DAY TABS */
-.day-tabs{display:flex;gap:4px;margin-bottom:14px;overflow-x:auto}
-.day-tab{background:#1a1a2e;border:1px solid #2a2a4a;color:#888;font-size:.72rem;font-weight:600;padding:6px 10px;border-radius:8px;cursor:pointer;white-space:nowrap;transition:all .2s}
-.day-tab.active{background:#7b6eff;border-color:#7b6eff;color:#fff}
-.day-tab.today-mark{border-color:#e63946}
+.day-tabs{display:flex;gap:6px;margin-bottom:14px;overflow-x:auto;-webkit-overflow-scrolling:touch}
+.day-tab{background:var(--surface-3);border:1px solid var(--border);color:var(--text-dim);font-size:var(--fs-sm);font-weight:600;padding:0 14px;border-radius:8px;cursor:pointer;white-space:nowrap;transition:all .2s;min-height:var(--tap);display:inline-flex;align-items:center;justify-content:center;flex-shrink:0}
+.day-tab.active{background:var(--accent);border-color:var(--accent);color:#fff}
+.day-tab.today-mark{border-color:var(--red)}
 /* WORKOUT CARD */
 .workout-header{background:linear-gradient(135deg,#1a1a2e,#0f1a3e);border:1px solid #2a2a4a;border-radius:12px;padding:14px 16px;margin-bottom:12px}
 .workout-title{font-size:1.05rem;font-weight:700;color:#fff;margin-bottom:4px}
@@ -199,16 +222,14 @@ nav button.active{color:#7b6eff}
 </head>
 <body>
 <header>
-  <div>
-    <h1>🏀 Dunk Protocol</h1>
-    <div style="font-size:.7rem;color:#64748b;margin-top:2px">12-Week Athletic Build</div>
-  </div>
+  <h1>🏀 Dunk Protocol</h1>
   <span class="badge">BETA</span>
+  <button class="sync-chip" id="sync-chip" onclick="openSyncModal()" aria-label="Cloud sync status">
+    <svg viewBox="0 0 24 24"><path d="M18 10h-1.26A8 8 0 1 0 9 20h9a5 5 0 0 0 0-10z"/></svg>
+    <span class="dot"></span>
+    <span id="sync-chip-text">Sync</span>
+  </button>
 </header>
-<div id="sync-bar" style="display:flex;align-items:center;justify-content:space-between;gap:8px;padding:7px 16px;background:#0d1520;border-bottom:1px solid #1e2d3d;font-size:.7rem;color:#64748b">
-  <span id="sync-status">Checking sync status…</span>
-  <button id="sync-action" onclick="openSyncModal()" style="background:none;border:1px solid #2a2a4a;color:#7b6eff;font-size:.68rem;font-weight:600;padding:3px 9px;border-radius:6px;cursor:pointer">Enable cloud sync</button>
-</div>
 <div class="modal-overlay" id="sync-modal">
   <div class="modal">
     <h3>Cloud sync</h3>
@@ -240,20 +261,32 @@ nav button.active{color:#7b6eff}
     </div>
   </div>
 </div>
-<nav>
-  <button class="active" onclick="showTab('workout')">Workout</button>
-  <button onclick="showTab('food')">Food Log</button>
-  <button onclick="showTab('weigh')">Weigh-In</button>
-  <button onclick="showTab('log')">Session Log</button>
+<nav id="bottom-nav">
+  <button class="active" data-tab="workout" onclick="showTab('workout')" aria-label="Workout">
+    <svg viewBox="0 0 24 24"><path d="M6.5 6.5v11M4 8.5v7M17.5 6.5v11M20 8.5v7M6.5 12h11"/></svg>
+    <span>Workout</span>
+  </button>
+  <button data-tab="food" onclick="showTab('food')" aria-label="Food log">
+    <svg viewBox="0 0 24 24"><path d="M5 2v8M7.5 2v4M10 2v4M7.5 6v16M5 10a2.5 2.5 0 0 0 5 0M17 2c-1.7 0-3 2.7-3 6s1.3 5 3 5v9"/></svg>
+    <span>Food</span>
+  </button>
+  <button data-tab="weigh" onclick="showTab('weigh')" aria-label="Weigh-in">
+    <svg viewBox="0 0 24 24"><path d="M3 17l6-6 4 4 8-8M15 7h6v6"/></svg>
+    <span>Weigh-In</span>
+  </button>
+  <button data-tab="log" onclick="showTab('log')" aria-label="Session log">
+    <svg viewBox="0 0 24 24"><path d="M4 5h16v16H4zM4 9h16M8 3v4M16 3v4M9 15l2 2 4-4"/></svg>
+    <span>Log</span>
+  </button>
 </nav>
 
 <!-- WORKOUT TAB -->
 <div id="tab-workout" class="tab-content active">
   <div class="phase-bar">
-    <label>WEEK:</label>
-    <div id="week-btns" style="display:flex;gap:4px;flex-wrap:wrap"></div>
-    <span id="phase-label" class="phase-label"></span>
+    <label>WEEK</label>
+    <div id="week-btns" style="display:flex;gap:6px;overflow-x:auto;-webkit-overflow-scrolling:touch;flex:1"></div>
   </div>
+  <div style="margin:-4px 0 12px"><span id="phase-label" class="phase-label"></span></div>
   <div class="day-tabs" id="day-tabs"></div>
   <div id="workout-content"></div>
 </div>
@@ -470,8 +503,7 @@ function initFirebase(){
     completeSignInIfNeeded();
     fbAuth.onAuthStateChanged(handleAuthChange);
   }catch(e){
-    var statusEl=document.getElementById('sync-status');
-    if(statusEl) statusEl.textContent='Cloud sync unavailable offline';
+    setSyncError('');
   }
 }
 
@@ -512,8 +544,7 @@ function completeSignInIfNeeded(){
     window.localStorage.removeItem(SYNC_EMAIL_KEY);
     history.replaceState(null, '', window.location.pathname);
   }).catch(function(err){
-    var statusEl=document.getElementById('sync-status');
-    if(statusEl) statusEl.textContent='Sign-in link expired — request a new one.';
+    setSyncError('Sign-in link expired — request a new one.');
   });
 }
 
@@ -525,18 +556,25 @@ function handleAuthChange(user){
 }
 
 function renderSyncBar(){
-  var statusEl=document.getElementById('sync-status');
-  var actionEl=document.getElementById('sync-action');
-  if(!statusEl||!actionEl) return;
+  var chip=document.getElementById('sync-chip');
+  var textEl=document.getElementById('sync-chip-text');
+  if(!chip||!textEl) return;
   if(syncUser){
-    statusEl.textContent='☁ Synced as '+syncUser.email;
-    actionEl.textContent='Sign out';
-    actionEl.onclick=signOutSync;
+    chip.classList.add('synced'); chip.classList.remove('error');
+    textEl.textContent='Synced';
+    chip.onclick=signOutSync;
   } else {
-    statusEl.textContent='Not synced — data stays on this device only';
-    actionEl.textContent='Enable cloud sync';
-    actionEl.onclick=openSyncModal;
+    chip.classList.remove('synced','error');
+    textEl.textContent='Sync';
+    chip.onclick=openSyncModal;
   }
+}
+function setSyncError(msg){
+  var chip=document.getElementById('sync-chip');
+  var textEl=document.getElementById('sync-chip-text');
+  if(chip){ chip.classList.add('error'); chip.classList.remove('synced'); }
+  if(textEl) textEl.textContent='Error';
+  if(msg) toast(msg);
 }
 
 function openSyncModal(){
@@ -584,8 +622,7 @@ function attachSyncListener(uid){
       pushStateToCloud(local);
     }
   }, function(err){
-    var statusEl=document.getElementById('sync-status');
-    if(statusEl) statusEl.textContent='Sync error: '+err.message;
+    setSyncError('Sync error: '+err.message);
   });
 }
 
@@ -1222,7 +1259,7 @@ function closeAltModal(){
 }
 
 function confirmAlt(){
-  if(selectedAlt===null){alert('Please select an alternative exercise.');return;}
+  if(selectedAlt===null){toast('Please select an alternative exercise.');return;}
   var t=currentAltTarget;
   var alt=t.alts[selectedAlt];
   var reason=document.getElementById('alt-reason').value||'Not specified';
@@ -1231,7 +1268,7 @@ function confirmAlt(){
   saveState();
   closeAltModal();
   refreshLogTab();
-  alert('Logged: '+alt.n+' used instead of '+t.exName);
+  toast('Logged: '+alt.n+' instead of '+t.exName);
 }
 
 // ---- COMPLETE MODAL ----
@@ -1290,7 +1327,7 @@ function refreshLogTab(){
 // ---- FOOD ----
 function addFood(){
   var name=document.getElementById('fi-name').value.trim();
-  if(!name){alert('Enter food name');return;}
+  if(!name){toast('Enter a food name');return;}
   var cal=parseFloat(document.getElementById('fi-cal').value)||0;
   var pro=parseFloat(document.getElementById('fi-pro').value)||0;
   var carb=parseFloat(document.getElementById('fi-carb').value)||0;
@@ -1372,7 +1409,7 @@ function addRestItem(rName, idx){
   saveState();
   renderFoodLog();
   showTab('food');
-  alert('Added: '+item.n);
+  toast('Added: '+item.n);
 }
 
 function renderChipotleBuilder(){
@@ -1424,7 +1461,7 @@ function addChipotleToLog(){
   if(chipotleBase){parts.push(chipotleBase);var b=r.bases.find(function(x){return x.n===chipotleBase;});if(b){tot.cal+=b.cal;tot.p+=b.p;tot.c+=b.c;tot.f+=b.f;}}
   if(chipotleProtein){parts.push(chipotleProtein);var pr=r.proteins.find(function(x){return x.n===chipotleProtein;});if(pr){tot.cal+=pr.cal;tot.p+=pr.p;tot.c+=pr.c;tot.f+=pr.f;}}
   chipotleExtras.forEach(function(en){parts.push(en);var e=r.extras.find(function(x){return x.n===en;});if(e){tot.cal+=e.cal;tot.p+=e.p;tot.c+=e.c;tot.f+=e.f;}});
-  if(parts.length===0){alert('Select at least a base or protein.');return;}
+  if(parts.length===0){toast('Select at least a base or protein.');return;}
   foodLog.push({id:logId++, name:'Chipotle: '+parts.join('+'), cal:tot.cal, pro:tot.p, carb:tot.c, fat:tot.f});
   saveState();
   chipotleBase=null; chipotleProtein=null; chipotleExtras=[];
@@ -1437,7 +1474,7 @@ function addChipotleToLog(){
 function addWeighIn(){
   var wk=parseInt(document.getElementById('wi-week').value);
   var wt=parseFloat(document.getElementById('wi-weight').value);
-  if(!wk||!wt||wk<1||wk>12){alert('Enter valid week (1-12) and weight.');return;}
+  if(!wk||!wt||wk<1||wk>12){toast('Enter a valid week (1-12) and weight.');return;}
   weighIns[wk]=wt;
   saveState();
   renderWeighChart();
@@ -1466,16 +1503,26 @@ function renderWeighList(){
 }
 
 // ---- TABS ----
+// ---- TOAST ----
+var toastTimer=null;
+function toast(msg){
+  var el=document.getElementById('toast');
+  if(!el){ el=document.createElement('div'); el.id='toast'; el.className='toast'; document.body.appendChild(el); }
+  el.textContent=msg;
+  el.classList.add('show');
+  if(toastTimer) clearTimeout(toastTimer);
+  toastTimer=setTimeout(function(){ el.classList.remove('show'); }, 2000);
+}
+
 function showTab(name){
   document.querySelectorAll('.tab-content').forEach(function(t){t.classList.remove('active');});
-  document.querySelectorAll('nav button').forEach(function(b){b.classList.remove('active');});
   document.getElementById('tab-'+name).classList.add('active');
-  var labels={workout:'Workout',food:'Food Log',weigh:'Weigh-In',log:'Session Log'};
-  document.querySelectorAll('nav button').forEach(function(b){
-    if(b.textContent.trim()===labels[name]) b.classList.add('active');
+  document.querySelectorAll('#bottom-nav button').forEach(function(b){
+    b.classList.toggle('active', b.getAttribute('data-tab')===name);
   });
   if(name==='weigh'){ setTimeout(renderWeighChart,100); }
   if(name==='log'){ refreshLogTab(); }
+  window.scrollTo(0,0);
 }
 
 init();

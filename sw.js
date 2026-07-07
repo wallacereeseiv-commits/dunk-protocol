@@ -1,4 +1,4 @@
-var CACHE = 'dunk-protocol-v2';
+var CACHE = 'dunk-protocol-v3';
 var ASSETS = ['./', 'index.html', 'chart.umd.js', 'manifest.json', 'icon-180.png', 'icon-192.png', 'icon-512.png',
   'firebase-app-compat.js', 'firebase-auth-compat.js', 'firebase-firestore-compat.js'];
 
