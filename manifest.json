@@ -1,7 +1,7 @@
 {
   "name": "Dunk Protocol",
   "short_name": "Dunk Protocol",
-  "description": "IV's 12-week dunk & athletic development protocol",
+  "description": "12-week dunk & athletic development protocol",
   "start_url": "./",
   "scope": "./",
   "display": "standalone",
