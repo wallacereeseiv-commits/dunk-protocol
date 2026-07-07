@@ -1,0 +1,1411 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Dunk Protocol — IV's Athletic Plan</title>
+<meta name="theme-color" content="#0f0f13">
+<link rel="manifest" href="manifest.json">
+<link rel="apple-touch-icon" href="icon-180.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Dunk Protocol">
+<script src="chart.umd.js"></script>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:#0f0f13;color:#e8e8e8;font-family:'Segoe UI',system-ui,sans-serif;min-height:100vh}
+header{background:linear-gradient(135deg,#1a1a2e,#16213e);padding:16px 20px;border-bottom:1px solid #2a2a4a;display:flex;align-items:center;gap:12px}
+header h1{font-size:1.4rem;font-weight:700;color:#fff}
+header .badge{background:#e63946;color:#fff;font-size:.65rem;font-weight:700;padding:2px 7px;border-radius:20px;letter-spacing:.5px}
+nav{display:flex;gap:4px;padding:10px 16px;background:#13131f;border-bottom:1px solid #1e1e30;overflow-x:auto;flex-wrap:nowrap}
+nav button{background:none;border:none;color:#888;font-size:.8rem;font-weight:600;padding:6px 12px;border-radius:8px;cursor:pointer;white-space:nowrap;transition:all .2s}
+nav button.active,nav button:hover{background:#1e1e35;color:#e8e8e8}
+nav button.active{color:#7b6eff}
+.tab-content{display:none;padding:16px;max-width:900px;margin:0 auto}
+.tab-content.active{display:block}
+/* WEEK/PHASE BAR */
+.phase-bar{display:flex;gap:8px;margin-bottom:14px;align-items:center;flex-wrap:wrap}
+.phase-bar label{font-size:.75rem;color:#888}
+.wk-btn{background:#1a1a2e;border:1px solid #2a2a4a;color:#888;font-size:.72rem;font-weight:600;padding:4px 9px;border-radius:6px;cursor:pointer}
+.wk-btn.active{background:#7b6eff;border-color:#7b6eff;color:#fff}
+.phase-label{font-size:.72rem;color:#7b6eff;font-weight:700;margin-left:4px}
+/* DAY TABS */
+.day-tabs{display:flex;gap:4px;margin-bottom:14px;overflow-x:auto}
+.day-tab{background:#1a1a2e;border:1px solid #2a2a4a;color:#888;font-size:.72rem;font-weight:600;padding:6px 10px;border-radius:8px;cursor:pointer;white-space:nowrap;transition:all .2s}
+.day-tab.active{background:#7b6eff;border-color:#7b6eff;color:#fff}
+.day-tab.today-mark{border-color:#e63946}
+/* WORKOUT CARD */
+.workout-header{background:linear-gradient(135deg,#1a1a2e,#0f1a3e);border:1px solid #2a2a4a;border-radius:12px;padding:14px 16px;margin-bottom:12px}
+.workout-title{font-size:1.05rem;font-weight:700;color:#fff;margin-bottom:4px}
+.workout-focus{font-size:.78rem;color:#a0aec0;line-height:1.5}
+.tag{display:inline-block;font-size:.6rem;font-weight:700;padding:2px 8px;border-radius:20px;margin-right:6px;letter-spacing:.5px}
+.tag-power{background:#4a1942;color:#e879f9}
+.tag-sprint{background:#1a3a1a;color:#4ade80}
+.tag-mob{background:#1a2a3a;color:#38bdf8}
+.tag-full{background:#2a1a0a;color:#fb923c}
+.tag-upper{background:#1a1a3a;color:#818cf8}
+.tag-jump{background:#3a1a1a;color:#f87171}
+.tag-yoga{background:#1a2a2a;color:#34d399}
+/* WARMUP */
+.warmup-box{background:#111825;border:1px solid #1e2d3d;border-radius:10px;padding:12px;margin-bottom:12px}
+.warmup-box h4{font-size:.75rem;color:#38bdf8;font-weight:700;margin-bottom:8px;letter-spacing:.5px}
+.warmup-steps{list-style:none;display:flex;flex-direction:column;gap:4px}
+.warmup-steps li{font-size:.75rem;color:#94a3b8;padding:3px 0;border-bottom:1px solid #1e2d3d;display:flex;gap:6px}
+.warmup-steps li:last-child{border:none}
+.warmup-steps li .step-num{color:#38bdf8;font-weight:700;min-width:16px}
+/* EXERCISE ROW */
+.ex-section{margin-bottom:8px}
+.ex-section h5{font-size:.68rem;color:#7b6eff;font-weight:700;letter-spacing:.8px;text-transform:uppercase;margin-bottom:6px;padding-left:4px;border-left:2px solid #7b6eff}
+.ex-row{background:#111320;border:1px solid #1e1e35;border-radius:10px;padding:11px 12px;margin-bottom:6px;transition:border-color .2s}
+.ex-row:hover{border-color:#2a2a50}
+.ex-header{display:flex;align-items:flex-start;gap:8px;margin-bottom:6px}
+.ex-name{font-size:.88rem;font-weight:700;color:#e8e8e8;flex:1}
+.key-badge{background:#7b6eff22;color:#7b6eff;font-size:.58rem;font-weight:700;padding:1px 5px;border-radius:4px;letter-spacing:.4px;flex-shrink:0;margin-top:2px}
+.ex-meta{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:5px}
+.ex-meta span{font-size:.72rem;color:#94a3b8}
+.ex-meta .sets{color:#e8e8e8;font-weight:600}
+.ex-meta .tempo{color:#fb923c}
+.ex-meta .rpe{color:#4ade80}
+.ex-note{font-size:.72rem;color:#64748b;font-style:italic;line-height:1.4;margin-bottom:6px}
+.weight-box{background:#0d1520;border:1px solid #1e3a50;border-radius:7px;padding:7px 10px;margin-bottom:6px}
+.weight-box .wlabel{font-size:.62rem;color:#38bdf8;font-weight:700;margin-bottom:3px;letter-spacing:.4px}
+.weight-box .wtext{font-size:.73rem;color:#94a3b8;line-height:1.4}
+.ex-actions{display:flex;gap:6px;flex-wrap:wrap}
+.btn-alt{background:#1e1e35;border:1px solid #2a2a50;color:#818cf8;font-size:.67rem;font-weight:600;padding:4px 10px;border-radius:6px;cursor:pointer;transition:all .2s}
+.btn-alt:hover{background:#2a2a50;color:#a5b4fc}
+.btn-log-done{background:#1a3a1a;border:1px solid #2a5a2a;color:#4ade80;font-size:.67rem;font-weight:600;padding:4px 10px;border-radius:6px;cursor:pointer}
+/* ALT MODAL */
+.modal-overlay{position:fixed;inset:0;background:#000a;z-index:1000;display:none;align-items:center;justify-content:center;padding:16px}
+.modal-overlay.open{display:flex}
+.modal{background:#13131f;border:1px solid #2a2a4a;border-radius:14px;padding:20px;max-width:440px;width:100%}
+.modal h3{font-size:1rem;font-weight:700;color:#fff;margin-bottom:4px}
+.modal p.sub{font-size:.75rem;color:#64748b;margin-bottom:14px}
+.alt-option{background:#111320;border:1px solid #1e1e35;border-radius:9px;padding:10px 12px;margin-bottom:8px;cursor:pointer;transition:all .2s}
+.alt-option:hover{border-color:#7b6eff;background:#1a1a30}
+.alt-option .alt-name{font-size:.85rem;font-weight:700;color:#e8e8e8;margin-bottom:2px}
+.alt-option .alt-note{font-size:.72rem;color:#64748b}
+.modal-reason{margin-top:10px}
+.modal-reason label{font-size:.72rem;color:#94a3b8;display:block;margin-bottom:4px}
+.modal-reason textarea{width:100%;background:#0f0f1a;border:1px solid #2a2a4a;border-radius:7px;color:#e8e8e8;font-size:.78rem;padding:8px;resize:vertical;min-height:60px}
+.modal-btns{display:flex;gap:8px;margin-top:12px;justify-content:flex-end}
+.btn-cancel{background:#1e1e35;border:1px solid #2a2a4a;color:#94a3b8;font-size:.78rem;padding:7px 14px;border-radius:7px;cursor:pointer}
+.btn-confirm{background:#7b6eff;border:none;color:#fff;font-size:.78rem;font-weight:700;padding:7px 14px;border-radius:7px;cursor:pointer}
+/* COMPLETION LOG */
+.completion-section{background:#0d1a0d;border:1px solid #1a3a1a;border-radius:10px;padding:12px;margin-top:10px}
+.completion-section h4{font-size:.72rem;color:#4ade80;font-weight:700;margin-bottom:8px;letter-spacing:.4px}
+.log-form{display:flex;gap:6px;flex-wrap:wrap;align-items:flex-end}
+.log-form input,.log-form textarea{background:#0f1a0f;border:1px solid #2a4a2a;border-radius:6px;color:#e8e8e8;font-size:.75rem;padding:6px 9px}
+.log-form input{width:140px}
+.log-form textarea{flex:1;min-width:160px;resize:none;height:36px}
+.btn-log{background:#1a3a1a;border:1px solid #2a5a2a;color:#4ade80;font-size:.72rem;font-weight:700;padding:6px 12px;border-radius:6px;cursor:pointer}
+.log-entries{margin-top:8px;display:flex;flex-direction:column;gap:5px}
+.log-entry{background:#111820;border:1px solid #1e2d1e;border-radius:7px;padding:7px 10px;font-size:.72rem;color:#94a3b8}
+.log-entry .log-date{color:#4ade80;font-weight:700;margin-right:6px}
+/* MOBILITY */
+.mob-routine{display:flex;flex-direction:column;gap:8px}
+.mob-item{background:#111320;border:1px solid #1e1e35;border-radius:9px;padding:11px 12px}
+.mob-item-name{font-size:.85rem;font-weight:700;color:#e8e8e8;margin-bottom:3px}
+.mob-item-detail{font-size:.72rem;color:#94a3b8;line-height:1.4}
+/* FOOD TAB */
+.food-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px}
+@media(max-width:600px){.food-grid{grid-template-columns:1fr}}
+.macro-card{background:#111320;border:1px solid #1e1e35;border-radius:10px;padding:12px;text-align:center}
+.macro-card .val{font-size:1.4rem;font-weight:700;color:#7b6eff}
+.macro-card .lbl{font-size:.68rem;color:#64748b;margin-top:2px}
+.macro-card .remain{font-size:.72rem;color:#4ade80;margin-top:2px}
+.prog-bar{height:6px;background:#1e1e35;border-radius:3px;margin-top:6px;overflow:hidden}
+.prog-fill{height:100%;border-radius:3px;transition:width .4s}
+.section-hdr{font-size:.75rem;font-weight:700;color:#e8e8e8;margin:14px 0 8px;display:flex;align-items:center;gap:6px;letter-spacing:.4px}
+.section-hdr::after{content:'';flex:1;height:1px;background:#1e1e35}
+/* SCAN */
+.scan-box{background:#111320;border:2px dashed #2a2a4a;border-radius:12px;padding:14px;margin-bottom:12px;text-align:center}
+.scan-box.has-image{border-style:solid;border-color:#7b6eff}
+.scan-preview{width:100%;max-height:220px;object-fit:contain;border-radius:8px;margin:10px 0;display:none}
+.scan-preview.show{display:block}
+.scan-btns{display:flex;gap:8px;justify-content:center;flex-wrap:wrap}
+.btn-scan{background:#1a1a2e;border:1px solid #2a2a4a;color:#e8e8e8;font-size:.78rem;font-weight:700;padding:9px 16px;border-radius:8px;cursor:pointer;transition:all .2s}
+.btn-scan:hover{background:#2a2a50}
+.btn-scan-primary{background:#7b6eff;border-color:#7b6eff;color:#fff}
+.btn-scan-primary:hover{background:#9d8fff}
+.scan-results{background:#0d1520;border:1px solid #1e3a50;border-radius:9px;padding:11px 13px;margin-top:10px;text-align:left;display:none}
+.scan-results.show{display:block}
+.scan-results .sr-label{font-size:.65rem;color:#38bdf8;font-weight:700;letter-spacing:.5px;margin-bottom:6px}
+.scan-results .sr-name{font-size:.9rem;font-weight:700;color:#e8e8e8;margin-bottom:6px}
+.scan-results .sr-macros{display:flex;gap:12px;flex-wrap:wrap;margin-bottom:8px}
+.scan-results .sr-m{text-align:center}
+.scan-results .sr-m .v{font-size:1rem;font-weight:700;color:#7b6eff}
+.scan-results .sr-m .l{font-size:.62rem;color:#64748b}
+.scan-results .sr-note{font-size:.7rem;color:#64748b;line-height:1.4;margin-bottom:8px;font-style:italic}
+.scan-loading{font-size:.78rem;color:#7b6eff;padding:12px 0;display:none}
+.scan-loading.show{display:block}
+.scan-error{font-size:.78rem;color:#ef4444;padding:8px 0;display:none}
+.scan-error.show{display:block}
+/* LOG FOOD */
+.food-form{background:#111320;border:1px solid #1e1e35;border-radius:10px;padding:13px;margin-bottom:12px}
+.food-form input,.food-form select{background:#0f0f1a;border:1px solid #2a2a4a;border-radius:7px;color:#e8e8e8;font-size:.78rem;padding:8px 10px;width:100%;margin-bottom:8px}
+.food-form .row{display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:6px}
+@media(max-width:500px){.food-form .row{grid-template-columns:1fr 1fr}}
+.btn-add-food{background:#7b6eff;border:none;color:#fff;font-size:.78rem;font-weight:700;padding:9px 16px;border-radius:8px;cursor:pointer;width:100%}
+.log-list{display:flex;flex-direction:column;gap:6px;margin-bottom:12px}
+.food-item{background:#111320;border:1px solid #1e1e35;border-radius:9px;padding:9px 12px;display:flex;justify-content:space-between;align-items:center}
+.food-item .fi-name{font-size:.82rem;font-weight:600;color:#e8e8e8}
+.food-item .fi-macros{font-size:.68rem;color:#64748b}
+.food-item .fi-del{background:none;border:none;color:#ef4444;cursor:pointer;font-size:.8rem}
+/* RESTAURANT */
+.rest-tabs{display:flex;gap:4px;flex-wrap:wrap;margin-bottom:10px}
+.rest-tab{background:#1a1a2e;border:1px solid #2a2a4a;color:#888;font-size:.7rem;font-weight:600;padding:5px 10px;border-radius:7px;cursor:pointer;transition:all .2s}
+.rest-tab.active{background:#e63946;border-color:#e63946;color:#fff}
+.rest-panel{display:none}
+.rest-panel.active{display:block}
+.rest-item{display:flex;justify-content:space-between;align-items:center;background:#111320;border:1px solid #1e1e35;border-radius:8px;padding:9px 12px;margin-bottom:5px;cursor:pointer;transition:all .2s}
+.rest-item:hover{border-color:#7b6eff;background:#1a1a30}
+.rest-item.selected{border-color:#4ade80;background:#0d1a0d}
+.rest-item .ri-name{font-size:.82rem;font-weight:600;color:#e8e8e8}
+.rest-item .ri-macros{font-size:.68rem;color:#64748b}
+.chipotle-builder{background:#111320;border:1px solid #1e1e35;border-radius:10px;padding:13px;margin-bottom:10px}
+.chipotle-builder h4{font-size:.78rem;color:#e63946;font-weight:700;margin-bottom:10px;letter-spacing:.4px}
+.cg-section{margin-bottom:10px}
+.cg-label{font-size:.68rem;color:#94a3b8;font-weight:700;margin-bottom:5px;letter-spacing:.4px;text-transform:uppercase}
+.cg-opts{display:flex;flex-wrap:wrap;gap:5px}
+.cg-opt{background:#0f0f1a;border:1px solid #2a2a4a;color:#888;font-size:.7rem;font-weight:600;padding:4px 10px;border-radius:6px;cursor:pointer;transition:all .2s}
+.cg-opt.sel{background:#e63946;border-color:#e63946;color:#fff}
+.cg-opt.sel-extra{background:#fb923c33;border-color:#fb923c;color:#fb923c}
+.chipotle-total{background:#0d1520;border:1px solid #1e3a50;border-radius:8px;padding:10px 12px;margin-top:8px;display:flex;gap:14px;flex-wrap:wrap}
+.ct-macro{text-align:center}
+.ct-macro .v{font-size:1.1rem;font-weight:700;color:#e8e8e8}
+.ct-macro .l{font-size:.62rem;color:#64748b}
+.btn-add-rest{background:#4ade80;border:none;color:#0f0f1a;font-size:.75rem;font-weight:700;padding:7px 14px;border-radius:7px;cursor:pointer;margin-top:8px}
+/* WEIGH */
+.weigh-form{background:#111320;border:1px solid #1e1e35;border-radius:10px;padding:13px;margin-bottom:12px;display:flex;gap:8px;align-items:flex-end;flex-wrap:wrap}
+.weigh-form label{font-size:.72rem;color:#94a3b8;display:block;margin-bottom:3px}
+.weigh-form input{background:#0f0f1a;border:1px solid #2a2a4a;border-radius:7px;color:#e8e8e8;font-size:.85rem;padding:8px 10px;width:100px}
+.btn-weigh{background:#7b6eff;border:none;color:#fff;font-size:.78rem;font-weight:700;padding:8px 14px;border-radius:8px;cursor:pointer}
+.chart-wrap{background:#111320;border:1px solid #1e1e35;border-radius:10px;padding:14px;height:220px;position:relative}
+/* POWER CLEAN BOX */
+.clean-box{background:#1a1000;border:1px solid #3a2a00;border-radius:10px;padding:12px;margin-top:8px}
+.clean-box h4{font-size:.75rem;color:#fb923c;font-weight:700;margin-bottom:8px;letter-spacing:.4px}
+.clean-phase{margin-bottom:8px;padding-bottom:8px;border-bottom:1px solid #2a2000}
+.clean-phase:last-child{border:none;margin:0;padding:0}
+.clean-phase-name{font-size:.78rem;font-weight:700;color:#fb923c;margin-bottom:3px}
+.clean-phase-detail{font-size:.72rem;color:#94a3b8;line-height:1.5}
+/* WEEKLY PROGRESS */
+.week-prog{margin-top:6px;background:#0d1520;border:1px solid #1e2d3d;border-radius:8px;padding:9px 12px;font-size:.72rem;color:#64748b;line-height:1.5}
+.week-prog strong{color:#38bdf8}
+</style>
+</head>
+<body>
+<header>
+  <div>
+    <h1>🏀 Dunk Protocol</h1>
+    <div style="font-size:.7rem;color:#64748b;margin-top:2px">IV • 5'11" 175lbs • 12-Week Athletic Build</div>
+  </div>
+  <span class="badge">BETA</span>
+</header>
+<nav>
+  <button class="active" onclick="showTab('workout')">Workout</button>
+  <button onclick="showTab('food')">Food Log</button>
+  <button onclick="showTab('weigh')">Weigh-In</button>
+  <button onclick="showTab('log')">Session Log</button>
+</nav>
+
+<!-- WORKOUT TAB -->
+<div id="tab-workout" class="tab-content active">
+  <div class="phase-bar">
+    <label>WEEK:</label>
+    <div id="week-btns" style="display:flex;gap:4px;flex-wrap:wrap"></div>
+    <span id="phase-label" class="phase-label"></span>
+  </div>
+  <div class="day-tabs" id="day-tabs"></div>
+  <div id="workout-content"></div>
+</div>
+
+<!-- FOOD TAB -->
+<div id="tab-food" class="tab-content">
+  <div class="food-grid">
+    <div class="macro-card">
+      <div class="val" id="f-cal">0</div><div class="lbl">Calories</div>
+      <div class="remain" id="f-cal-r"></div>
+      <div class="prog-bar"><div class="prog-fill" id="pb-cal" style="background:#7b6eff;width:0%"></div></div>
+    </div>
+    <div class="macro-card">
+      <div class="val" id="f-pro">0g</div><div class="lbl">Protein</div>
+      <div class="remain" id="f-pro-r"></div>
+      <div class="prog-bar"><div class="prog-fill" id="pb-pro" style="background:#4ade80;width:0%"></div></div>
+    </div>
+    <div class="macro-card">
+      <div class="val" id="f-carb">0g</div><div class="lbl">Carbs</div>
+      <div class="remain" id="f-carb-r"></div>
+      <div class="prog-bar"><div class="prog-fill" id="pb-carb" style="background:#fb923c;width:0%"></div></div>
+    </div>
+    <div class="macro-card">
+      <div class="val" id="f-fat">0g</div><div class="lbl">Fat</div>
+      <div class="remain" id="f-fat-r"></div>
+      <div class="prog-bar"><div class="prog-fill" id="pb-fat" style="background:#f472b6;width:0%"></div></div>
+    </div>
+  </div>
+
+  <div class="section-hdr">📷 SCAN FOOD</div>
+  <div class="scan-box" id="scan-box">
+    <input type="file" id="scan-input" accept="image/*" style="display:none" onchange="handleScanFile(event)">
+    <div id="scan-placeholder" style="padding:6px 0">
+      <div style="font-size:2rem;margin-bottom:6px">📷</div>
+      <div style="font-size:.78rem;color:#64748b;margin-bottom:12px">Take a photo or upload an image of your food — AI will estimate the calories and macros</div>
+      <div class="scan-btns">
+        <button class="btn-scan" onclick="document.getElementById('scan-input').setAttribute('capture','environment');document.getElementById('scan-input').click()">📷 Take Photo</button>
+        <button class="btn-scan" onclick="document.getElementById('scan-input').removeAttribute('capture');document.getElementById('scan-input').click()">🖼️ Upload Image</button>
+      </div>
+    </div>
+    <img id="scan-preview" class="scan-preview" src="" alt="Food preview">
+    <div id="scan-loading" class="scan-loading">🔍 Analyzing your food...</div>
+    <div id="scan-error" class="scan-error"></div>
+    <div id="scan-results" class="scan-results">
+      <div class="sr-label">AI ESTIMATE</div>
+      <div class="sr-name" id="sr-name"></div>
+      <div class="sr-macros">
+        <div class="sr-m"><div class="v" id="sr-cal">—</div><div class="l">Calories</div></div>
+        <div class="sr-m"><div class="v" id="sr-pro">—</div><div class="l">Protein</div></div>
+        <div class="sr-m"><div class="v" id="sr-carb">—</div><div class="l">Carbs</div></div>
+        <div class="sr-m"><div class="v" id="sr-fat">—</div><div class="l">Fat</div></div>
+      </div>
+      <div class="sr-note" id="sr-note"></div>
+      <div class="scan-btns">
+        <button class="btn-scan btn-scan-primary" onclick="addScanToLog()">+ Add to Log</button>
+        <button class="btn-scan" onclick="editScanResult()">✏️ Edit Values</button>
+        <button class="btn-scan" onclick="resetScan()">🔄 New Scan</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="section-hdr">LOG FOOD</div>
+  <div class="food-form">
+    <input type="text" id="fi-name" placeholder="Food name">
+    <div class="row">
+      <input type="number" id="fi-cal" placeholder="Calories">
+      <input type="number" id="fi-pro" placeholder="Protein g">
+      <input type="number" id="fi-carb" placeholder="Carbs g">
+      <input type="number" id="fi-fat" placeholder="Fat g">
+    </div>
+    <button class="btn-add-food" onclick="addFood()">+ Add Food</button>
+  </div>
+
+  <div class="section-hdr">RESTAURANT LOOKUP</div>
+  <div class="rest-tabs" id="rest-tabs"></div>
+  <div id="rest-panels"></div>
+
+  <div class="section-hdr">TODAY'S LOG</div>
+  <div class="log-list" id="food-log-list"></div>
+</div>
+
+<!-- WEIGH TAB -->
+<div id="tab-weigh" class="tab-content">
+  <div class="weigh-form">
+    <div>
+      <label>Week #</label>
+      <input type="number" id="wi-week" min="1" max="12" placeholder="1-12" style="width:80px">
+    </div>
+    <div>
+      <label>Weight (lbs)</label>
+      <input type="number" id="wi-weight" placeholder="175" step="0.1">
+    </div>
+    <button class="btn-weigh" onclick="addWeighIn()">Log</button>
+  </div>
+  <div class="chart-wrap">
+    <canvas id="weigh-chart"></canvas>
+  </div>
+  <div id="weigh-list" style="margin-top:10px;display:flex;flex-direction:column;gap:5px"></div>
+</div>
+
+<!-- SESSION LOG TAB -->
+<div id="tab-log" class="tab-content">
+  <div class="section-hdr">WORKOUT COMPLETION LOG</div>
+  <div id="session-log-list" style="display:flex;flex-direction:column;gap:8px">
+    <div style="font-size:.78rem;color:#64748b;text-align:center;padding:20px">No sessions logged yet. Complete workouts to see logs here.</div>
+  </div>
+  <div class="section-hdr" style="margin-top:16px">EXERCISE ALTERNATIVES USED</div>
+  <div id="alt-log-list" style="display:flex;flex-direction:column;gap:6px">
+    <div style="font-size:.78rem;color:#64748b;text-align:center;padding:20px">No alternative exercises logged yet.</div>
+  </div>
+</div>
+
+<!-- ALT MODAL -->
+<div class="modal-overlay" id="alt-modal">
+  <div class="modal">
+    <h3>Alternative Exercises</h3>
+    <p class="sub" id="alt-modal-sub">Choose a substitute and log why</p>
+    <div id="alt-options"></div>
+    <div class="modal-reason">
+      <label>Reason (optional)</label>
+      <textarea id="alt-reason" placeholder="e.g. No trap bar available, knee pain, etc."></textarea>
+    </div>
+    <div class="modal-btns">
+      <button class="btn-cancel" onclick="closeAltModal()">Cancel</button>
+      <button class="btn-confirm" onclick="confirmAlt()">Use This Exercise</button>
+    </div>
+  </div>
+</div>
+
+<!-- COMPLETE WORKOUT MODAL -->
+<div class="modal-overlay" id="complete-modal">
+  <div class="modal">
+    <h3>✅ Log Workout Complete</h3>
+    <p class="sub" id="complete-modal-sub"></p>
+    <div style="margin-top:10px">
+      <label style="font-size:.72rem;color:#94a3b8;display:block;margin-bottom:4px">Notes (optional)</label>
+      <textarea id="complete-notes" style="width:100%;background:#0f0f1a;border:1px solid #2a2a4a;border-radius:7px;color:#e8e8e8;font-size:.78rem;padding:8px;resize:vertical;min-height:70px" placeholder="How'd it go? Energy, PRs, how body felt..."></textarea>
+    </div>
+    <div class="modal-btns">
+      <button class="btn-cancel" onclick="closeCompleteModal()">Cancel</button>
+      <button class="btn-confirm" onclick="confirmComplete()" style="background:#4ade80;color:#0f0f1a">Log Complete</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ---- STATE ----
+var currentWeek = 1;
+var activeDay = (new Date().getDay()+6)%7; // 0=Mon
+var foodLog = [];
+var logId = 1;
+var weighIns = new Array(13).fill(null);
+var weighChart = null;
+var currentAltTarget = null; // {dayIdx, exSectionIdx, exIdx, exName, alts}
+var selectedAlt = null;
+var currentCompleteDay = null;
+var COMPLETION = {}; // 'W1D0': [{date,notes}]
+var ALT_LOG = {};    // 'W1D0': [{orig,used,reason,date}]
+var TARGETS = {cal:3000, protein:175, carbs:350, fat:90};
+
+// ---- PERSISTENCE ----
+var STORAGE_KEY='dunk-protocol-v1';
+function saveState(){
+  try{
+    localStorage.setItem(STORAGE_KEY, JSON.stringify({
+      currentWeek:currentWeek, foodLog:foodLog, logId:logId, foodDate:getTodayStr(),
+      weighIns:weighIns, COMPLETION:COMPLETION, ALT_LOG:ALT_LOG
+    }));
+  }catch(e){/* storage full or unavailable — app still works, just won't persist */}
+}
+function loadState(){
+  try{
+    var raw=localStorage.getItem(STORAGE_KEY);
+    if(!raw) return;
+    var s=JSON.parse(raw);
+    if(s.currentWeek>=1&&s.currentWeek<=12) currentWeek=s.currentWeek;
+    if(typeof s.logId==='number') logId=s.logId;
+    if(Array.isArray(s.weighIns)&&s.weighIns.length===13) weighIns=s.weighIns;
+    if(s.COMPLETION) COMPLETION=s.COMPLETION;
+    if(s.ALT_LOG) ALT_LOG=s.ALT_LOG;
+    // Food log is a daily log — carry it over only if saved today
+    if(Array.isArray(s.foodLog)&&s.foodDate===getTodayStr()) foodLog=s.foodLog;
+  }catch(e){/* corrupt state — start fresh rather than crash */}
+}
+
+function wKey(day){ return 'W'+currentWeek+'D'+day; }
+function phase(){ return currentWeek<=4?1:currentWeek<=8?2:3; }
+function phaseLabel(){ return phase()===1?'Phase 1 — Foundation':phase()===2?'Phase 2 — Development':'Phase 3 — Peak'; }
+
+// ---- WARMUPS ----
+var WARMUPS = {
+  general: [
+    'Foam roll calves, quads, IT band — 60 sec each',
+    '5 min low-intensity bike or row',
+    'World\'s greatest stretch × 5 each side',
+    'Hip 90/90 mobility × 8 reps',
+    'Glute bridges × 15 — squeeze hard',
+    'Tibialis raises × 20 (stand and flex toes up against wall)',
+    'Ankle circles × 10 each direction',
+    'Monster walks banded × 15 each direction'
+  ],
+  sprint: [
+    'Walk 200m easy',
+    'Hip circle walks × 10m forward/back',
+    'Skipping × 2 lengths',
+    'High knee walk × 20m',
+    'Lateral shuffle × 20m each way',
+    'Backward jog × 20m',
+    'Carioca (grapevine) × 20m each way',
+    'A-Skips × 2 lengths',
+    'B-Skips × 2 lengths',
+    'Power skips (max height) × 10',
+    'Straight leg bounds × 10m',
+    'Build-up strides: 60% → 70% → 80% → 90%'
+  ],
+  upper: [
+    'Band pull-aparts × 20',
+    'Face pulls light × 15',
+    'Shoulder circles forward/back × 10 each',
+    'Wall slides × 10',
+    'Scapular push-ups × 10',
+    '1-arm band rows × 12 each side',
+    'Wrist circles × 10 each direction'
+  ],
+  jump: [
+    'Calf raises × 20',
+    'Tibialis raises × 20',
+    'Ankle circles × 10 each',
+    'Pogo hops × 20 (quick bounces on spot)',
+    'Glute bridges × 15',
+    'Hip flexor stretch × 30 sec each',
+    'Broad jump easy × 3 (50% effort)',
+    'Build-up run × 2'
+  ]
+};
+
+// ---- WORKOUT DATA ----
+var WORKOUTS = [
+{
+  name:'Lower Athletic Power',tag:'POWER',tagCls:'tag-power',
+  warmupKey:'general',
+  sections:[
+    {title:'STRENGTH & POWER', exs:[
+      {n:'Trap Bar Deadlift',s:'4×5',tempo:'31X1',rpe:'8RPE',note:'Drive floor away, not pull up. Keep lats tight. Hip hinge dominant.',key:true,
+       weight:{1:'Warmup: 45lb | Work sets: 95–115 lbs | +10 lbs/week',2:'Warmup: 95lb | Work: 155–175 lbs | +10 lbs/week',3:'Warmup: 135lb | Work: 205–225 lbs | +5–10 lbs/week'},
+       alts:[{n:'Conventional Deadlift',note:'Straight bar, same movement pattern'},{n:'Romanian Deadlift',note:'Two heavy DBs, hinge to mid-shin, hamstring stretch'},{n:'Hex Bar Jump Squat',note:'Light trap bar, explode into jump at top'}]},
+      {n:'Tempo Front Squat',s:'4×4',tempo:'30X1',rpe:'7RPE',note:'3 sec down, explode up. Elbows HIGH, upper back vertical. Brutal quad development.',key:true,
+       weight:{1:'45 lbs (just bar) — dial in form | +5 lbs/week once form is locked',2:'65–85 lbs | +5 lbs/week',3:'95–115 lbs | +5 lbs/week'},
+       alts:[{n:'Goblet Squat',note:'DB at chest, same tempo'},{n:'Safety Bar Squat',note:'Easier to hold position'},{n:'Zercher Squat',note:'Bar in elbow crooks, extreme core demand'}]},
+      {n:'Heel Elevated Bulgarian Split Squat',s:'3×8 each',tempo:'20X1',rpe:'8RPE',note:'Front heel on 2-inch plate. Rear foot on bench. Drop knee toward floor. KOT movement — knee OVER toe.',key:true,
+       weight:{1:'10–15 lb DBs each hand | +5 lbs/week',2:'25–35 lb DBs | +5 lbs/week',3:'40–50 lb DBs | +5 lbs/week'},
+       alts:[{n:'ATG Split Squat (bodyweight)',note:'Deeper range, slower tempo, knee past toes'},{n:'Rear Foot Elevated Lunge',note:'Same setup, less depth'},{n:'Step-Up with Knee Drive',note:'Use a 20" box, explosive'}]}
+    ]},
+    {title:'KOT / KNEES OVER TOES', exs:[
+      {n:'ATG Split Squat',s:'3×10 each',tempo:'20X1',rpe:'6RPE',note:'Knees Over Toes Guy staple. Full range — knee touches floor. SLOW down, fast up. Heals ankle stiffness.',key:true,
+       weight:{1:'Bodyweight only | Add 5lb vest wk 3–4',2:'5–15 lb DBs | +5 lbs every 2 weeks',3:'20–30 lb DBs'},
+       alts:[{n:'Patrick Step',note:'Step down off small ledge, slow and controlled'},{n:'Tibialis Raises',note:'Stand on ledge, curl toes up, lower slow'},{n:'Poliquin Step-Up',note:'Toes on plate, heel-dominant single-leg squat'}]},
+      {n:'Nordic Curl',s:'3×5',tempo:'Slow',rpe:'Hard',note:'Kneel on pad, anchor feet. Lower yourself SLOWLY — fight the fall. Builds hamstrings like nothing else. May only get 1-2 reps at first.',key:true,
+       weight:{1:'Bodyweight — use hands to catch/assist',2:'Bodyweight — aim for full slow lowering',3:'Weighted vest or hold plate'},
+       alts:[{n:'Glute Ham Raise',note:'GHD machine version'},{n:'Lying Leg Curl',note:'Machine, slow eccentric'},{n:'Romanian Deadlift',note:'Hinge dominant hamstring work'}]},
+      {n:'Tibialis Raise',s:'3×25',tempo:'Controlled',rpe:'Moderate',note:'Stand with heels on edge, toes up. OR lean against wall, rock toes up. CURES shin splints and ankle stiffness.',
+       weight:{1:'Bodyweight',2:'Bodyweight + ankle weight',3:'Ankle weight 5–10 lbs'},
+       alts:[{n:'Toe Tap on Box',note:'Step up tapping toe, tibialis focused'},{n:'Band-Resisted Tibialis',note:'Band around toes, pull up against resistance'}]}
+    ]},
+    {title:'OVERCOMING ISOMETRICS', exs:[
+      {n:'Iso Squat Hold vs Pin',s:'3×6 sec MAX effort',tempo:'6 sec push',rpe:'100%',note:'Set safety bar at parallel. Load it heavy (can\'t move). PUSH against it with everything — 6 sec max contraction. Trains your CNS to fire harder than any regular set.',key:true,
+       weight:{1:'Unloaded pin at parallel',2:'Light plate on bar (doesn\'t matter — you can\'t move it)',3:'Same — just push HARDER'},
+       alts:[{n:'Wall Squat Hold (iso)',note:'Push back against wall, hold parallel — max tension'},{n:'Iso Hip Hinge',note:'Bar against pins in hinged position'}]},
+      {n:'Iso Mid-Thigh Pull',s:'3×6 sec MAX',tempo:'6 sec pull',rpe:'100%',note:'Pull against immovable bar at mid-thigh. Explosive pulling strength — directly transfers to jump.',
+       weight:{1:'Any weight on bar — you can\'t move it',2:'Same',3:'Same'},
+       alts:[{n:'Band Resisted Hip Extension',note:'Pull band at waist, extend hips explosively'},{n:'Iso Lat Pull on Machine',note:'Set stack too heavy, pull for 6 seconds'}]}
+    ]},
+    {title:'ROTATIONAL / PELVIC', exs:[
+      {n:'Pallof Press',s:'3×10 each',tempo:'Controlled',rpe:'6RPE',note:'Cable or band at chest height. Press out — resist rotation. Pelvic stability and anti-rotation.',
+       weight:{1:'Light band or 20-30 lb cable | +5 lbs/week',2:'40–60 lb cable',3:'70–90 lb cable'},
+       alts:[{n:'Half-Kneeling Cable Chop',note:'Chop from high to low, rotational'},{n:'Band Woodchop',note:'Band version of same movement'}]},
+      {n:'Hip 90/90 Pelvic Rotation',s:'2×10 each',tempo:'Slow',rpe:'Easy',note:'Sit on floor, both legs in 90° angles. Rotate pelvis to front, hold 2 sec, rotate back. Improves pelvic kinematics for running/jumping.',
+       weight:{1:'Bodyweight',2:'Bodyweight',3:'Bodyweight — increase range'},
+       alts:[{n:'Dead Bug',note:'Lower back pressed to floor, opposite arm/leg extend'},{n:'Bear Crawl Hip Circles',note:'On hands and knees, circle each hip'}]}
+    ]},
+    {title:'JUMPING', exs:[
+      {n:'Jumping Bulgarian Split Squat',s:'4×5 each',tempo:'Explosive',rpe:'8RPE',note:'Dip down, EXPLODE up — try to leave the ground with rear leg driving. Single leg power.',key:true,
+       weight:{1:'Bodyweight | +5 lb vest wk 3–4',2:'5–10 lb DBs',3:'15–20 lb DBs'},
+       alts:[{n:'Single Leg Broad Jump',note:'One leg, jump forward, stick landing'},{n:'Step-Up Jump',note:'Explosive step-up, knee drives up at top'}]}
+    ]}
+  ]
+},
+{
+  name:'Sprint Day + Upper Pull',tag:'SPRINT',tagCls:'tag-sprint',
+  warmupKey:'sprint',
+  sections:[
+    {title:'SPRINTS', exs:[
+      {n:'Acceleration Sprints',s:'6×30m',tempo:'Walk back',rpe:'95%',note:'First 10m = triple extension focus. Drive phase, not upright yet. Rest 2 min between.',key:true,
+       weight:{1:'Bodyweight | Week 3-4 add resistance sled drag 10-20 lbs',2:'Sled 20-30 lbs',3:'Max velocity focus — no sled'},
+       alts:[{n:'Hill Sprints 6×20m',note:'Steeper surface = more glute drive'},{n:'Court Suicide Runs',note:'Baseline to free throw and back × 6 full speed'}]},
+      {n:'Fly Sprints',s:'4×20m fly',tempo:'Full rest',rpe:'100%',note:'Build speed for 20m, then HIT the 20m fly zone at absolute max. Train max velocity.',key:true,
+       weight:{1:'Skip week 1-2, add week 3-4',2:'All weeks',3:'All weeks + slight decline if available'},
+       alts:[{n:'Court Fast Break Drill',note:'Half-court sprint at 100% effort × 6'},{n:'Agility T-Drill',note:'Sprint/shuffle/backpedal pattern'}]}
+    ]},
+    {title:'UPPER PULL', exs:[
+      {n:'Pull-Ups / Chin-Ups',s:'4×max',tempo:'21X1',rpe:'8RPE',note:'Full hang to chin over bar. Slow down (2 sec), pause at bottom, explode up. BEST upper back movement.',key:true,
+       weight:{1:'Bodyweight | Assisted band if can\'t do 3',2:'Bodyweight — aim 4-6 reps per set',3:'Weighted belt +10-25 lbs'},
+       alts:[{n:'Lat Pulldown',note:'Same pull, cable version'},{n:'Inverted Row',note:'Under bar, pull chest to bar'},{n:'Single Arm DB Row',note:'Heavy, brace on bench'}]},
+      {n:'Rotational Cable Row',s:'3×10 each',tempo:'Controlled',rpe:'7RPE',note:'Cable at waist. Row with rotation — torso twists at end. Athletic pulling pattern, not just back.',
+       weight:{1:'30–50 lbs | +5 lbs/week',2:'60–80 lbs',3:'90–120 lbs'},
+       alts:[{n:'Band Row with Rotation',note:'Band around pole, same pattern'},{n:'Dumbbell Row',note:'Single arm, heavy, strict'}]},
+      {n:'Face Pulls',s:'3×15',tempo:'Controlled',rpe:'6RPE',note:'Cable at face height. Pull to ears — elbows HIGH. Rear delt and rotator cuff health. Do these always.',
+       weight:{1:'30–50 lbs',2:'50–70 lbs',3:'60–80 lbs'},
+       alts:[{n:'Band Pull-Aparts',note:'Pull band apart at shoulder height'},{n:'Reverse Pec Deck',note:'Machine version'}]},
+      {n:'Hammer Curls',s:'3×12',tempo:'Controlled',rpe:'7RPE',note:'Neutral grip — works brachialis and brachioradialis. Better arm thickness than regular curls.',
+       weight:{1:'20–30 lb DBs',2:'35–45 lb DBs',3:'45–55 lb DBs'},
+       alts:[{n:'EZ Bar Curls',note:'Wide grip for peak'},{n:'Cable Rope Curls',note:'Constant tension'}]}
+    ]}
+  ]
+},
+{
+  name:'Movement Quality & Mobility',tag:'MOB',tagCls:'tag-mob',
+  isMobility:true,
+  duration:'35–45 min',
+  routine:[
+    {n:'KOT Patrick Step',d:'3×10 each foot | Step down off ledge, slow and controlled. Knee tracks over pinky toe.',set:''},
+    {n:'Tibialis Raises',d:'3×25 | Heels on edge or lean against wall. Cure for shin splints.',set:''},
+    {n:'ATG Split Squat (slow)',d:'3×8 each | Full range, bodyweight, 3 sec down. Hip flexor + knee mobility.',set:''},
+    {n:'Pallof Press (anti-rotation)',d:'2×10 each | Light band or cable. Pelvic stability.',set:''},
+    {n:'Hip 90/90 Transitions',d:'2 min | Sit on floor, flow through both 90° positions. Rotational hip mobility.',set:''},
+    {n:'Pelvic Tilts + Cat-Cow',d:'2×15 | On hands/knees, anterior/posterior pelvic tilt. Body awareness.',set:''},
+    {n:'Calf Stretch (wall)',d:'90 sec each | Straight knee then bent knee. Direct ankle dorsiflexion.',set:''},
+    {n:'Couch Stretch',d:'2 min each side | Hip flexor length. Quad mobility.',set:''},
+    {n:'Band Hip Distraction',d:'2 min each side | Band around hip in socket, move into restriction.',set:''},
+    {n:'Med Ball Rotational Throw',d:'3×8 each | Throw against wall or with partner. Rotational power flow.',set:''},
+    {n:'Dead Bug',d:'3×8 each | Lower back pressed down. Opposite arm/leg extend. Deep core.',set:''}
+  ]
+},
+{
+  name:'Full Body Athletic + Clean',tag:'FULL',tagCls:'tag-full',
+  warmupKey:'general',
+  sections:[
+    {title:'POWER CLEAN PROGRESSION', exs:[
+      {n:'Power Clean (Phase-Based)',s:'See progression below',tempo:'Explosive',rpe:'9RPE',note:'Technique-first. Watch the weight prescription for your current phase.',key:true,
+       isClean:true,
+       weight:{1:'45 lbs (just bar) — Hang Pull only, NO catch',2:'65 lbs — Hang High Pull + learn catch',3:'85–115 lbs — Full hang power clean'},
+       alts:[{n:'Barbell Hang Pull',note:'Pull bar to hips aggressively — no catch needed'},{n:'Dumbbell High Pull',note:'2 DBs, pull to ear height'},{n:'Kettlebell Swing',note:'Similar hip snap pattern'}]}
+    ]},
+    {title:'JUMPS & POWER', exs:[
+      {n:'Trap Bar Jump Squat',s:'5×3',tempo:'Explosive',rpe:'8RPE',note:'Light trap bar (10-25% bodyweight). Quarter squat then EXPLODE. Maximal rate of force development.',key:true,
+       weight:{1:'45–65 lbs',2:'65–95 lbs',3:'95–115 lbs'},
+       alts:[{n:'Barbell Jump Squat',note:'Straight bar across traps, same movement'},{n:'Box Jump with Load',note:'Light weight vest only'}]},
+      {n:'Two-Leg Box Jump',s:'5×5',tempo:'Full reset',rpe:'8RPE',note:'Max height box. Land softly, absorb. Don\'t bounce — reset each rep. This is quality over quantity.',key:true,
+       weight:{1:'24" box | Bodyweight',2:'30" box | Bodyweight',3:'36"+ box | Chase max height'},
+       alts:[{n:'Depth Jump',note:'Step off box, land and immediately jump'},{n:'Broad Jump',note:'Horizontal power, 5 jumps'}]}
+    ]},
+    {title:'ROTATIONAL THROWS', exs:[
+      {n:'Med Ball Rotational Side Throw',s:'4×6 each',tempo:'Explosive',rpe:'8RPE',note:'Stand sideways to wall. Load into hip, THROW ball sideways off wall. Rotational power = jumping power.',key:true,
+       weight:{1:'10 lb ball',2:'12–14 lb ball',3:'15–20 lb ball'},
+       alts:[{n:'Cable Chop',note:'High to low, rotational'},{n:'Band Rotation',note:'Anchor band, rotate explosively'}]}
+    ]},
+    {title:'UPPER (PUSH + PULL)', exs:[
+      {n:'Weighted Dips',s:'3×8',tempo:'21X1',rpe:'8RPE',note:'Full range, slight lean forward for chest. Best chest/tricep compound.',
+       weight:{1:'Bodyweight | Band assist if needed',2:'BW +10–25 lbs',3:'BW +25–45 lbs'},
+       alts:[{n:'Decline Bench Press',note:'45° decline, similar muscle pattern'},{n:'Close Grip Bench Press',note:'Shoulder-width grip, tricep dominant'}]},
+      {n:'DB Row (heavy)',s:'3×8 each',tempo:'Controlled',rpe:'8RPE',note:'Brace on bench. Row to hip, not chest. SQUEEZE lats.',
+       weight:{1:'40–55 lb DB',2:'60–80 lb DB',3:'85–100 lb DB'},
+       alts:[{n:'Cable Row',note:'Seated cable, chest up'},{n:'T-Bar Row',note:'Landmine or machine'}]},
+      {n:'Ab Wheel / Rollout',s:'3×8',tempo:'Controlled',rpe:'Hard',note:'From knees — full extension without lumbar collapse. Core stability for athletic movement.',
+       weight:{1:'Ab wheel from knees',2:'Ab wheel from knees, longer range',3:'Ab wheel or toes'},
+       alts:[{n:'Dragon Flag',note:'Slow lower on bench'},{n:'Plank Reach',note:'Plank + alternating reach forward'}]}
+    ]}
+  ]
+},
+{
+  name:'Upper Body + Conditioning',tag:'UPPER',tagCls:'tag-upper',
+  warmupKey:'upper',
+  sections:[
+    {title:'UPPER PUSH', exs:[
+      {n:'Bench Press',s:'4×6',tempo:'31X1',rpe:'8RPE',note:'3 sec down, pause 1 sec on chest, explode. Arch but don\'t cheat. Tight lats throughout.',key:true,
+       weight:{1:'40–50 lb DBs / 75–95 lb bar | +5 lbs/week',2:'115–135 lbs | +5 lbs/week',3:'145–165 lbs | +2.5–5 lbs/week'},
+       alts:[{n:'DB Bench Press',note:'More range of motion'},{n:'Incline DB Press',note:'30° incline for upper chest'},{n:'Landmine Press',note:'Shoulder-friendly push'}]},
+      {n:'Incline DB Press',s:'3×10',tempo:'21X1',rpe:'7RPE',note:'30° incline. Elbows at 45°. Full stretch at bottom.',
+       weight:{1:'30–40 lb DBs | +5 lbs every 2 weeks',2:'45–55 lb DBs',3:'60–70 lb DBs'},
+       alts:[{n:'Incline Barbell Press',note:'Same angle, barbell'},{n:'Cable Fly',note:'Stretch-focused chest isolation'}]},
+      {n:'Overhead Press',s:'3×8',tempo:'21X0',rpe:'7RPE',note:'Standing. Brace core, drive bar up. Slight layback is OK.',
+       weight:{1:'45–65 lbs | +5 lbs/week',2:'75–95 lbs',3:'100–120 lbs'},
+       alts:[{n:'DB Arnold Press',note:'Rotation adds shoulder range'},{n:'Landmine Press',note:'Single arm, shoulder friendly'}]}
+    ]},
+    {title:'UPPER PULL', exs:[
+      {n:'Weighted Pull-Ups',s:'3×6',tempo:'21X1',rpe:'8RPE',note:'Add weight from Phase 2 onward.',
+       weight:{1:'Bodyweight | Band assist if needed',2:'+10–20 lbs',3:'+20–35 lbs'},
+       alts:[{n:'Lat Pulldown',note:'Full range, elbows to hips'},{n:'Cable Row',note:'Seated, elbows tight'}]},
+      {n:'Cable Row',s:'3×10',tempo:'Controlled',rpe:'7RPE',note:'Chest up, pull to sternum. Squeeze at end of each rep.',
+       weight:{1:'60–80 lbs',2:'90–120 lbs',3:'130–160 lbs'},
+       alts:[{n:'Chest Supported Row',note:'Chest on incline bench, row DBs'},{n:'Band Row',note:'Light band, high rep pump'}]}
+    ]},
+    {title:'ARMS', exs:[
+      {n:'EZ Bar Curl',s:'3×10',tempo:'21X1',rpe:'7RPE',note:'Supinate at top — full range.',
+       weight:{1:'40–60 lbs',2:'60–80 lbs',3:'75–95 lbs'},
+       alts:[{n:'DB Concentration Curl',note:'Single arm, peak contraction'},{n:'Cable Rope Curl',note:'Constant tension'}]},
+      {n:'Skull Crushers',s:'3×12',tempo:'21X1',rpe:'7RPE',note:'Lower to forehead, lock out top.',
+       weight:{1:'45–55 lbs',2:'60–75 lbs',3:'75–90 lbs'},
+       alts:[{n:'Tricep Pushdown',note:'Cable rope, elbows locked'},{n:'Close Grip Bench',note:'Press, not skull crush'}]}
+    ]},
+    {title:'CONDITIONING (Choose One)', exs:[
+      {n:'Option A — Barbell Complex',s:'3–4 rounds',tempo:'No rest within round',rpe:'9RPE',note:'65 lbs bar. All in sequence: DL × 6, Hang Clean × 6, Front Squat × 6, Push Press × 6, Back Squat × 6, Row × 6. Put bar down between rounds only. 2 min rest.',key:true,
+       weight:{1:'45 lbs — learn the flow | Phase 2+ add weight',2:'65 lbs',3:'75–85 lbs'},
+       alts:[{n:'Option B: Court Circuit',note:'Suicides × 4, Jump Squats × 20, Push-Ups × 20 — 4 rounds'},{n:'Option C: Explosive Circuit',note:'Box Jumps × 8, KB Swings × 12, Burpees × 8, 40m Sprint — 4 rounds'}]}
+    ]}
+  ]
+},
+{
+  name:'Jump Day — All Varieties',tag:'JUMP',tagCls:'tag-jump',
+  warmupKey:'jump',
+  sections:[
+    {title:'JUMPING (FULL PROTOCOL)', exs:[
+      {n:'Two-Leg Max Box Jump',s:'6×3',tempo:'Full reset between reps',rpe:'9RPE',note:'MAX height. Swing arms, triple extension. Box gets higher each phase. This is your dunk training.',key:true,
+       weight:{1:'24" box | Try 26–28" by wk 4',2:'30–32" box',3:'36"+ box | Chase rim'},
+       alts:[{n:'Max Height Standing Jump',note:'Same effort, no box'},{n:'Step-Up to Box Jump',note:'Step then launch'}]},
+      {n:'Single-Leg Box Jump',s:'4×3 each',tempo:'Full reset',rpe:'8RPE',note:'Drive off one foot — land on both or same foot. CRUCIAL for basketball — most dunks are one-foot.',key:true,
+       weight:{1:'18–20" box',2:'22–24" box',3:'26–30" box'},
+       alts:[{n:'Single Leg Bound',note:'Hop forward off one foot, distance focus'},{n:'Lateral Bound',note:'Side-to-side, stick landing'}]},
+      {n:'Depth Jump',s:'4×4',tempo:'Immediate rebound',rpe:'9RPE',note:'Step off 12-18" box. The moment you land — IMMEDIATELY jump. No pause. Trains reactive strength.',key:true,
+       weight:{1:'12" box, focus on immediate rebounding',2:'15–18" box',3:'18–24" box'},
+       alts:[{n:'Drop and Stick',note:'Same but hold landing — learn control'},{n:'Double Broad Jump',note:'Two horizontal jumps in sequence'}]},
+      {n:'Continuous Hurdle Hops',s:'3×8 hurdles',tempo:'No pause between hops',rpe:'8RPE',note:'Low hurdles or cones. Hop continuously — quick amortization. Plyometric circuit.',
+       weight:{1:'Cones or 12" hurdles',2:'15–18" hurdles',3:'20–24" hurdles'},
+       alts:[{n:'Pogo Hops',note:'Just ankles — quick stiff bounces × 30'},{n:'Stair Hops',note:'Two-leg hop up stairs × 4'}]},
+      {n:'Quick Bounce Jumps',s:'3×15 sec',tempo:'Continuous',rpe:'7RPE',note:'FAST tiny hops. Barely leave ground. Trains ankle stiffness (spring) — critical for vert.',
+       weight:{1:'Bodyweight',2:'Bodyweight — increase speed',3:'Ankle weights 5 lbs OR increase speed'},
+       alts:[{n:'Single Leg Pogo',note:'Same but one leg — much harder'},{n:'Jump Rope',note:'2 min fast cadence'}]},
+      {n:'Tuck Jumps',s:'4×6',tempo:'Explosive',rpe:'8RPE',note:'Jump and pull knees to chest. Shows hip flexor speed — needed at rim.',
+       weight:{1:'Bodyweight',2:'Bodyweight — add height',3:'Bodyweight — max height + knee height'},
+       alts:[{n:'Jump Squats',note:'Explosive squat, less tuck'},{n:'Broad Jump',note:'Horizontal power variant'}]},
+      {n:'Lateral Bounds',s:'3×8 each',tempo:'Stick landing',rpe:'7RPE',note:'Push off one foot sideways. Land, stabilize, push back. Frontal plane athleticism.',
+       weight:{1:'Bodyweight',2:'Bodyweight — longer distance',3:'Bodyweight — max distance + stability'},
+       alts:[{n:'Skater Hops',note:'Faster, more rhythmic version'},{n:'Side Step-Up',note:'Lateral step-up on box'}]},
+      {n:'Approach Jump Practice',s:'8–10 attempts',tempo:'Full approach speed',rpe:'Max',note:'Practice YOUR dunk approach. Time the gather, one-step or two-step. Touch the highest point you can each rep.',key:true,
+       weight:{1:'Aim for rim + backboard area',2:'Aim for rim',3:'Chase the dunk'},
+       alts:[{n:'Wall Touch Jumps',note:'Jump and touch high mark on wall'},{n:'Standing Reach Max',note:'Track progress with tape on wall'}]}
+    ]}
+  ]
+},
+{
+  name:'Yoga & Full Recovery',tag:'YOGA',tagCls:'tag-yoga',
+  isMobility:true,
+  duration:'30–40 min',
+  routine:[
+    {n:'Surya Namaskar (Sun Salutations)',d:'5 rounds slow | Opens everything — hip flexors, hamstrings, spine, shoulders.'},
+    {n:'Lizard Pose',d:'2 min each side | Deep hip flexor and inner groin stretch.'},
+    {n:'Pigeon Pose',d:'2 min each side | External hip rotation. Fixes tight glutes that compress knees.'},
+    {n:'Downward Dog',d:'1 min × 3 | Calf and hamstring length. Wrist stability.'},
+    {n:'Seated Forward Fold',d:'2 min | Hamstrings and lower back decompression.'},
+    {n:'Supine Twist',d:'1 min each side | Spinal rotation and lumbar relief.'},
+    {n:'Happy Baby',d:'1–2 min | Hip opening and pelvic floor release.'},
+    {n:'Legs Up the Wall',d:'5 min | Circulation and recovery for jump legs.'},
+    {n:'Box Breathing',d:'5 min | 4 sec in, 4 hold, 4 out, 4 hold. CNS down-regulation.'}
+  ]
+}
+];
+
+// ---- RESTAURANT DATA ----
+var RESTAURANTS = {
+  'Chipotle': {
+    type:'builder',
+    bases:[
+      {n:'Burrito Bowl',cal:0,p:0,c:0,f:0},
+      {n:'Burrito (Flour Tortilla)',cal:300,p:8,c:48,f:9},
+      {n:'Salad',cal:0,p:0,c:0,f:0},
+      {n:'Tacos (3 Flour)',cal:255,p:6,c:42,f:7}
+    ],
+    proteins:[
+      {n:'Double Chicken',cal:340,p:56,c:2,f:7},
+      {n:'Chicken',cal:180,p:32,c:1,f:7},
+      {n:'Steak',cal:150,p:21,c:1,f:6},
+      {n:'Double Steak',cal:300,p:42,c:2,f:12},
+      {n:'Barbacoa',cal:170,p:24,c:2,f:7},
+      {n:'Carnitas',cal:210,p:23,c:0,f:12},
+      {n:'Sofritas (Tofu)',cal:150,p:8,c:9,f:10}
+    ],
+    extras:[
+      {n:'Brown Rice',cal:215,p:4,c:44,f:3},
+      {n:'White Rice',cal:210,p:4,c:44,f:3},
+      {n:'Black Beans',cal:130,p:8,c:22,f:1},
+      {n:'Pinto Beans',cal:115,p:7,c:19,f:1},
+      {n:'Fajita Veggies',cal:20,p:1,c:4,f:1},
+      {n:'Mild Salsa (Pico)',cal:25,p:1,c:5,f:0},
+      {n:'Medium Salsa',cal:30,p:1,c:7,f:0},
+      {n:'Hot Salsa',cal:30,p:1,c:6,f:0},
+      {n:'Corn Salsa',cal:80,p:3,c:15,f:1},
+      {n:'Guac',cal:230,p:2,c:12,f:22},
+      {n:'Sour Cream',cal:110,p:2,c:2,f:11},
+      {n:'Cheese',cal:110,p:6,c:1,f:9},
+      {n:'Romaine Lettuce',cal:5,p:0,c:1,f:0},
+      {n:'Queso',cal:120,p:5,c:5,f:9}
+    ]
+  },
+  'Five Guys': {
+    type:'menu',
+    items:[
+      {n:'Hamburger',cal:700,p:40,c:40,f:43},
+      {n:'Cheeseburger',cal:840,p:48,c:40,f:55},
+      {n:'Bacon Cheeseburger',cal:920,p:52,c:41,f:62},
+      {n:'Little Hamburger',cal:380,p:22,c:26,f:26},
+      {n:'Little Cheeseburger',cal:470,p:26,c:26,f:32},
+      {n:'Hot Dog',cal:480,p:20,c:37,f:29},
+      {n:'Veggie Sandwich',cal:440,p:17,c:60,f:15},
+      {n:'Regular Fries',cal:953,p:13,c:131,f:41},
+      {n:'Little Fries',cal:526,p:7,c:72,f:23},
+      {n:'Cajun Fries (Regular)',cal:953,p:13,c:131,f:41},
+      {n:'Chocolate Shake',cal:760,p:19,c:102,f:35},
+      {n:'Strawberry Shake',cal:770,p:18,c:108,f:34}
+    ]
+  },
+  "Chick-fil-A": {
+    type:'menu',
+    items:[
+      {n:'Chicken Sandwich',cal:440,p:28,c:40,f:19},
+      {n:'Spicy Chicken Sandwich',cal:450,p:27,c:41,f:19},
+      {n:'Chicken Deluxe',cal:500,p:30,c:41,f:24},
+      {n:'Grilled Chicken Sandwich',cal:320,p:30,c:36,f:6},
+      {n:'8pc Nuggets',cal:260,p:26,c:12,f:12},
+      {n:'12pc Nuggets',cal:390,p:38,c:18,f:18},
+      {n:'Grilled Nuggets 8pc',cal:140,p:25,c:2,f:3},
+      {n:'Waffle Fries (Medium)',cal:400,p:5,c:54,f:19},
+      {n:'Mac & Cheese (Medium)',cal:450,p:15,c:46,f:24},
+      {n:'Superfood Side',cal:170,p:5,c:22,f:8},
+      {n:'Cobb Salad (no dressing)',cal:510,p:42,c:23,f:29},
+      {n:'Milkshake (Medium)',cal:580,p:15,c:78,f:25}
+    ]
+  },
+  "McDonald's": {
+    type:'menu',
+    items:[
+      {n:'Big Mac',cal:550,p:25,c:46,f:30},
+      {n:'Quarter Pounder w/ Cheese',cal:520,p:30,c:43,f:26},
+      {n:'Double Quarter Pounder',cal:740,p:48,c:43,f:42},
+      {n:'McDouble',cal:400,p:22,c:34,f:20},
+      {n:'McChicken',cal:400,p:14,c:42,f:21},
+      {n:'10pc McNuggets',cal:410,p:24,c:26,f:25},
+      {n:'20pc McNuggets',cal:830,p:48,c:52,f:49},
+      {n:'McGriddle (Egg, Cheese, Sausage)',cal:550,p:20,c:48,f:30},
+      {n:'Egg McMuffin',cal:310,p:17,c:30,f:13},
+      {n:'Medium Fries',cal:320,p:4,c:43,f:15},
+      {n:'Large Fries',cal:490,p:7,c:66,f:23},
+      {n:'Side Salad',cal:15,p:1,c:3,f:0}
+    ]
+  },
+  'Subway': {
+    type:'menu',
+    items:[
+      {n:'6" Chicken Teriyaki',cal:370,p:26,c:51,f:5},
+      {n:'12" Chicken Teriyaki',cal:740,p:52,c:102,f:10},
+      {n:'6" Tuna',cal:480,p:21,c:41,f:26},
+      {n:'6" Turkey Breast',cal:280,p:18,c:40,f:4},
+      {n:'12" Turkey Breast',cal:560,p:36,c:80,f:8},
+      {n:'6" Steak & Cheese',cal:380,p:24,c:42,f:12},
+      {n:'6" Meatball Marinara',cal:460,p:22,c:52,f:18},
+      {n:'Footlong Meatball',cal:920,p:44,c:104,f:36},
+      {n:'6" Veggie Delite',cal:200,p:9,c:39,f:3},
+      {n:'Footlong BMT',cal:760,p:38,c:78,f:30},
+      {n:'Chips',cal:220,p:3,c:27,f:12},
+      {n:'Cookie',cal:210,p:2,c:31,f:10}
+    ]
+  },
+  "Wendy's": {
+    type:'menu',
+    items:[
+      {n:"Dave's Single",cal:570,p:30,c:39,f:34},
+      {n:"Dave's Double",cal:810,p:50,c:40,f:48},
+      {n:"Dave's Triple",cal:1070,p:70,c:40,f:65},
+      {n:'Baconator',cal:950,p:57,c:37,f:65},
+      {n:'Son of Baconator',cal:630,p:35,c:36,f:39},
+      {n:'Spicy Chicken Sandwich',cal:500,p:29,c:49,f:21},
+      {n:'Grilled Chicken Sandwich',cal:370,p:34,c:36,f:10},
+      {n:'4pc Nuggets',cal:180,p:10,c:12,f:10},
+      {n:'10pc Nuggets',cal:450,p:26,c:30,f:25},
+      {n:'Small Fries',cal:270,p:4,c:36,f:13},
+      {n:'Medium Fries',cal:420,p:6,c:55,f:19},
+      {n:'Chili (Small)',cal:170,p:15,c:16,f:5},
+      {n:'Apple Pecan Salad',cal:570,p:33,c:40,f:31}
+    ]
+  },
+  'Popeyes': {
+    type:'menu',
+    items:[
+      {n:'Classic Chicken Sandwich',cal:700,p:28,c:52,f:42},
+      {n:'Spicy Chicken Sandwich',cal:700,p:28,c:50,f:42},
+      {n:'3pc Chicken Tenders',cal:370,p:28,c:22,f:19},
+      {n:'5pc Chicken Tenders',cal:620,p:47,c:37,f:32},
+      {n:'2pc Dark Chicken (Spicy)',cal:460,p:34,c:17,f:31},
+      {n:'2pc White Chicken',cal:390,p:41,c:15,f:19},
+      {n:'3pc Wing Combo',cal:480,p:32,c:20,f:30},
+      {n:'Red Beans & Rice (Regular)',cal:230,p:8,c:31,f:8},
+      {n:'Mashed Potatoes & Gravy',cal:110,p:2,c:17,f:4},
+      {n:'Cajun Fries (Regular)',cal:310,p:4,c:40,f:15},
+      {n:'Coleslaw',cal:200,p:1,c:17,f:14},
+      {n:'Mac & Cheese',cal:170,p:7,c:18,f:8}
+    ]
+  },
+  'Taco Bell': {
+    type:'menu',
+    items:[
+      {n:'Crunchwrap Supreme',cal:520,p:17,c:67,f:20},
+      {n:'Burrito Supreme',cal:390,p:16,c:51,f:13},
+      {n:'Bean Burrito',cal:380,p:14,c:55,f:11},
+      {n:'Beef Burrito',cal:430,p:16,c:52,f:17},
+      {n:'Chicken Quesadilla',cal:470,p:26,c:39,f:23},
+      {n:'Steak Quesadilla',cal:440,p:22,c:38,f:21},
+      {n:'Doritos Locos Taco',cal:170,p:8,c:16,f:9},
+      {n:'Power Menu Bowl — Chicken',cal:470,p:26,c:51,f:17},
+      {n:'Nachos BellGrande',cal:740,p:20,c:79,f:38},
+      {n:'Chalupa Supreme',cal:340,p:13,c:31,f:19},
+      {n:'Mexican Pizza',cal:540,p:20,c:49,f:30},
+      {n:'Cinnabon Delights 4pk',cal:310,p:4,c:35,f:18}
+    ]
+  }
+};
+
+// State for Chipotle builder
+var chipotleBase = null;
+var chipotleProtein = null;
+var chipotleExtras = [];
+
+// ---- INIT ----
+function init(){
+  loadState();
+  // AI photo scan needs the Cowork bridge (desktop app only) — swap in a hint elsewhere
+  if(!(window.cowork && window.cowork.askClaude)){
+    var ph=document.getElementById('scan-placeholder');
+    if(ph) ph.innerHTML='<div style="font-size:2rem;margin-bottom:6px">📷</div><div style="font-size:.78rem;color:#64748b">AI photo scan is only available in Claude on the computer. On your phone, log food manually below or pick from the restaurant menus.</div>';
+  }
+  renderWeekBtns();
+  renderDayTabs();
+  renderWorkout();
+  renderFoodLog();
+  renderRestTabs();
+}
+
+function renderWeekBtns(){
+  var c = document.getElementById('week-btns');
+  c.innerHTML='';
+  for(var w=1;w<=12;w++){
+    var b=document.createElement('button');
+    b.className='wk-btn'+(currentWeek===w?' active':'');
+    b.textContent='W'+w;
+    b.onclick=(function(ww){return function(){currentWeek=ww;saveState();renderWeekBtns();renderWorkout();};})(w);
+    c.appendChild(b);
+  }
+  document.getElementById('phase-label').textContent=phaseLabel();
+}
+
+function renderDayTabs(){
+  var days=['Mon','Tue','Wed','Thu','Fri','Sat','Sun'];
+  var c=document.getElementById('day-tabs');
+  c.innerHTML='';
+  var todayIdx=(new Date().getDay()+6)%7;
+  days.forEach(function(d,i){
+    var b=document.createElement('button');
+    b.className='day-tab'+(activeDay===i?' active':'')+(todayIdx===i?' today-mark':'');
+    b.textContent=d;
+    b.onclick=(function(ii){return function(){activeDay=ii;renderDayTabs();renderWorkout();};})(i);
+    c.appendChild(b);
+  });
+}
+
+function renderWorkout(){
+  var w=WORKOUTS[activeDay];
+  var p=phase();
+  var dayKey=wKey(activeDay);
+  var completed=COMPLETION[dayKey]&&COMPLETION[dayKey].length>0;
+  var html='';
+
+  html+='<div class="workout-header">';
+  html+='<div style="display:flex;justify-content:space-between;align-items:flex-start">';
+  html+='<div><span class="tag '+w.tagCls+'">'+w.tag+'</span></div>';
+  if(completed){html+='<span style="font-size:.7rem;color:#4ade80;font-weight:700">✅ LOGGED</span>';}
+  html+='</div>';
+  html+='<div class="workout-title" style="margin-top:6px">'+w.name+'</div>';
+  html+='<div class="workout-focus">Week '+currentWeek+' · '+phaseLabel()+'</div>';
+  html+='</div>';
+
+  // Mobility/Yoga days
+  if(w.isMobility){
+    html+='<div style="margin-bottom:10px;font-size:.75rem;color:#64748b">Duration: '+w.duration+'</div>';
+    html+='<div class="mob-routine">';
+    w.routine.forEach(function(r){
+      html+='<div class="mob-item"><div class="mob-item-name">'+r.n+'</div><div class="mob-item-detail">'+r.d+'</div></div>';
+    });
+    html+='</div>';
+    html+=renderCompleteSection(dayKey, w.name);
+    document.getElementById('workout-content').innerHTML=html;
+    return;
+  }
+
+  // Warmup
+  var wu=WARMUPS[w.warmupKey]||WARMUPS.general;
+  html+='<div class="warmup-box"><h4>🔥 WARMUP</h4><ul class="warmup-steps">';
+  wu.forEach(function(step,i){
+    html+='<li><span class="step-num">'+(i+1)+'</span>'+step+'</li>';
+  });
+  html+='</ul></div>';
+
+  // Sections
+  w.sections.forEach(function(sec, secIdx){
+    html+='<div class="ex-section">';
+    html+='<h5>'+sec.title+'</h5>';
+    sec.exs.forEach(function(ex, exIdx){
+      html+=renderExercise(ex, secIdx, exIdx, p, dayKey);
+    });
+    html+='</div>';
+  });
+
+  html+=renderCompleteSection(dayKey, w.name);
+  document.getElementById('workout-content').innerHTML=html;
+}
+
+function renderExercise(ex, secIdx, exIdx, p, dayKey){
+  var html='<div class="ex-row">';
+  html+='<div class="ex-header">';
+  html+='<div class="ex-name">'+ex.n+'</div>';
+  if(ex.key) html+='<span class="key-badge">KEY</span>';
+  html+='</div>';
+  html+='<div class="ex-meta">';
+  html+='<span class="sets">'+ex.s+'</span>';
+  if(ex.tempo) html+='<span class="tempo">Tempo: '+ex.tempo+'</span>';
+  html+='<span class="rpe">'+ex.rpe+'</span>';
+  html+='</div>';
+  html+='<div class="ex-note">'+ex.note+'</div>';
+  // Weight box
+  var wt=ex.weight&&ex.weight[p]?ex.weight[p]:'See coaching note';
+  html+='<div class="weight-box"><div class="wlabel">⚖️ WEIGHT — PHASE '+p+'</div><div class="wtext">'+wt+'</div></div>';
+  // Power clean special box
+  if(ex.isClean){
+    html+='<div class="clean-box"><h4>🏋️ POWER CLEAN LEARNING PATH</h4>';
+    html+='<div class="clean-phase"><div class="clean-phase-name">Phase 1 (Wk 1-4) — Hang Pull Only</div><div class="clean-phase-detail">45 lb bar. Stand with bar at hang. JUMP and SHRUG as hard as you can. NO catch. Just feel the hip extension and shrug. 4×5 reps. Get the hip snap locked in.</div></div>';
+    html+='<div class="clean-phase"><div class="clean-phase-name">Phase 2 (Wk 5-8) — Hang High Pull + Catch</div><div class="clean-phase-detail">65 lbs. Jump, shrug, then add pulling elbows HIGH and AROUND. Start catching bar in power position (quarter squat). Cue: "jump, shrug, elbows through." 4×4 reps.</div></div>';
+    html+='<div class="clean-phase"><div class="clean-phase-name">Phase 3 (Wk 9-12) — Full Hang Power Clean</div><div class="clean-phase-detail">85–115 lbs. Full movement — bar from hang, explosive triple extension, fast elbows, catch in athletic position. Cue: "fast elbows." 4×3 reps. Add weight when elbows are fast and catch is solid.</div></div>';
+    html+='</div>';
+  }
+  // Alts button
+  if(ex.alts&&ex.alts.length){
+    var altDataStr=JSON.stringify(ex.alts).replace(/'/g,"&#39;").replace(/"/g,'&quot;');
+    html+='<div class="ex-actions">';
+    html+='<button class="btn-alt" onclick="openAltModal(\''+ex.n+'\','+secIdx+','+exIdx+',\''+dayKey+'\',\''+altDataStr+'\')">🔄 Alternatives</button>';
+    html+='</div>';
+  }
+  html+='</div>';
+  return html;
+}
+
+function renderCompleteSection(dayKey, dayName){
+  var entries=COMPLETION[dayKey]||[];
+  var html='<div class="completion-section">';
+  html+='<h4>📋 LOG THIS SESSION</h4>';
+  html+='<div class="log-form">';
+  html+='<input type="text" id="log-date-'+dayKey+'" placeholder="Date (today)" value="'+getTodayStr()+'">';
+  html+='<textarea id="log-note-'+dayKey+'" placeholder="How\'d it go? Energy, PRs, etc."></textarea>';
+  html+='<button class="btn-log" onclick="openCompleteModal(\''+dayKey+'\',\''+dayName+'\')">✅ Mark Complete</button>';
+  html+='</div>';
+  if(entries.length){
+    html+='<div class="log-entries">';
+    entries.forEach(function(e){
+      html+='<div class="log-entry"><span class="log-date">'+e.date+'</span>'+e.notes+'</div>';
+    });
+    html+='</div>';
+  }
+  html+='</div>';
+  return html;
+}
+
+function getTodayStr(){
+  var d=new Date();
+  return (d.getMonth()+1)+'/'+d.getDate()+'/'+d.getFullYear();
+}
+
+// ---- ALT MODAL ----
+function openAltModal(exName, secIdx, exIdx, dayKey, altDataStr){
+  currentAltTarget={dayKey:dayKey, secIdx:secIdx, exIdx:exIdx, exName:exName};
+  selectedAlt=null;
+  var alts=JSON.parse(altDataStr.replace(/&quot;/g,'"').replace(/&#39;/g,"'"));
+  currentAltTarget.alts=alts;
+  document.getElementById('alt-modal-sub').textContent='Substituting: '+exName;
+  var html='';
+  alts.forEach(function(a,i){
+    html+='<div class="alt-option" onclick="selectAlt('+i+',this)"><div class="alt-name">'+a.n+'</div><div class="alt-note">'+a.note+'</div></div>';
+  });
+  document.getElementById('alt-options').innerHTML=html;
+  document.getElementById('alt-reason').value='';
+  document.getElementById('alt-modal').classList.add('open');
+}
+
+function selectAlt(i, el){
+  document.querySelectorAll('.alt-option').forEach(function(e){e.style.borderColor='#1e1e35';});
+  el.style.borderColor='#7b6eff';
+  selectedAlt=i;
+}
+
+function closeAltModal(){
+  document.getElementById('alt-modal').classList.remove('open');
+  currentAltTarget=null;
+  selectedAlt=null;
+}
+
+function confirmAlt(){
+  if(selectedAlt===null){alert('Please select an alternative exercise.');return;}
+  var t=currentAltTarget;
+  var alt=t.alts[selectedAlt];
+  var reason=document.getElementById('alt-reason').value||'Not specified';
+  if(!ALT_LOG[t.dayKey]) ALT_LOG[t.dayKey]=[];
+  ALT_LOG[t.dayKey].push({orig:t.exName, used:alt.n, reason:reason, date:getTodayStr()});
+  saveState();
+  closeAltModal();
+  refreshLogTab();
+  alert('Logged: '+alt.n+' used instead of '+t.exName);
+}
+
+// ---- COMPLETE MODAL ----
+function openCompleteModal(dayKey, dayName){
+  currentCompleteDay={key:dayKey, name:dayName};
+  document.getElementById('complete-modal-sub').textContent='Week '+currentWeek+' · '+dayName;
+  document.getElementById('complete-notes').value='';
+  var el=document.getElementById('log-note-'+dayKey);
+  if(el) document.getElementById('complete-notes').value=el.value;
+  document.getElementById('complete-modal').classList.add('open');
+}
+
+function closeCompleteModal(){ document.getElementById('complete-modal').classList.remove('open'); currentCompleteDay=null; }
+
+function confirmComplete(){
+  if(!currentCompleteDay) return;
+  var key=currentCompleteDay.key;
+  if(!COMPLETION[key]) COMPLETION[key]=[];
+  var notes=document.getElementById('complete-notes').value||'';
+  COMPLETION[key].push({date:getTodayStr(), notes:notes||'Completed'});
+  saveState();
+  closeCompleteModal();
+  renderWorkout();
+  refreshLogTab();
+}
+
+function refreshLogTab(){
+  // Session log
+  var sl=document.getElementById('session-log-list');
+  var all=[];
+  Object.keys(COMPLETION).forEach(function(k){
+    COMPLETION[k].forEach(function(e){ all.push({key:k, date:e.date, notes:e.notes}); });
+  });
+  if(all.length===0){
+    sl.innerHTML='<div style="font-size:.78rem;color:#64748b;text-align:center;padding:20px">No sessions logged yet.</div>';
+  } else {
+    sl.innerHTML=all.map(function(e){
+      return '<div style="background:#111320;border:1px solid #1e1e35;border-radius:9px;padding:10px 12px;font-size:.78rem"><div style="color:#4ade80;font-weight:700;margin-bottom:3px">'+e.key+' · '+e.date+'</div><div style="color:#94a3b8">'+e.notes+'</div></div>';
+    }).join('');
+  }
+  // Alt log
+  var al=document.getElementById('alt-log-list');
+  var alts=[];
+  Object.keys(ALT_LOG).forEach(function(k){
+    ALT_LOG[k].forEach(function(e){ alts.push(Object.assign({key:k},e)); });
+  });
+  if(alts.length===0){
+    al.innerHTML='<div style="font-size:.78rem;color:#64748b;text-align:center;padding:20px">No alternative exercises logged yet.</div>';
+  } else {
+    al.innerHTML=alts.map(function(e){
+      return '<div style="background:#111320;border:1px solid #1e1e35;border-radius:9px;padding:10px 12px;font-size:.78rem"><div style="color:#fb923c;font-weight:700;margin-bottom:2px">'+e.key+' · '+e.date+'</div><div style="color:#e8e8e8">'+e.orig+' → <span style="color:#4ade80">'+e.used+'</span></div><div style="color:#64748b;margin-top:2px">Reason: '+e.reason+'</div></div>';
+    }).join('');
+  }
+}
+
+// ---- FOOD ----
+function addFood(){
+  var name=document.getElementById('fi-name').value.trim();
+  if(!name){alert('Enter food name');return;}
+  var cal=parseFloat(document.getElementById('fi-cal').value)||0;
+  var pro=parseFloat(document.getElementById('fi-pro').value)||0;
+  var carb=parseFloat(document.getElementById('fi-carb').value)||0;
+  var fat=parseFloat(document.getElementById('fi-fat').value)||0;
+  foodLog.push({id:logId++, name:name, cal:cal, pro:pro, carb:carb, fat:fat});
+  saveState();
+  document.getElementById('fi-name').value='';
+  document.getElementById('fi-cal').value='';
+  document.getElementById('fi-pro').value='';
+  document.getElementById('fi-carb').value='';
+  document.getElementById('fi-fat').value='';
+  renderFoodLog();
+}
+
+function removeFood(id){
+  foodLog=foodLog.filter(function(f){return f.id!==id;});
+  saveState();
+  renderFoodLog();
+}
+
+function renderFoodLog(){
+  var tot={cal:0,pro:0,carb:0,fat:0};
+  foodLog.forEach(function(f){tot.cal+=f.cal;tot.pro+=f.pro;tot.carb+=f.carb;tot.fat+=f.fat;});
+  function pct(v,t){return Math.min(100,Math.round(v/t*100));}
+  document.getElementById('f-cal').textContent=Math.round(tot.cal);
+  document.getElementById('f-pro').textContent=Math.round(tot.pro)+'g';
+  document.getElementById('f-carb').textContent=Math.round(tot.carb)+'g';
+  document.getElementById('f-fat').textContent=Math.round(tot.fat)+'g';
+  document.getElementById('f-cal-r').textContent=(TARGETS.cal-tot.cal)>0?(TARGETS.cal-tot.cal)+' cal left':'Goal hit!';
+  document.getElementById('f-pro-r').textContent=(TARGETS.protein-tot.pro)>0?Math.round(TARGETS.protein-tot.pro)+'g left':'Goal hit!';
+  document.getElementById('f-carb-r').textContent=(TARGETS.carbs-tot.carb)>0?Math.round(TARGETS.carbs-tot.carb)+'g left':'Goal hit!';
+  document.getElementById('f-fat-r').textContent=(TARGETS.fat-tot.fat)>0?Math.round(TARGETS.fat-tot.fat)+'g left':'Goal hit!';
+  document.getElementById('pb-cal').style.width=pct(tot.cal,TARGETS.cal)+'%';
+  document.getElementById('pb-pro').style.width=pct(tot.pro,TARGETS.protein)+'%';
+  document.getElementById('pb-carb').style.width=pct(tot.carb,TARGETS.carbs)+'%';
+  document.getElementById('pb-fat').style.width=pct(tot.fat,TARGETS.fat)+'%';
+  var list=document.getElementById('food-log-list');
+  if(foodLog.length===0){list.innerHTML='<div style="font-size:.78rem;color:#64748b;text-align:center;padding:16px">Nothing logged yet. Add food above or pick from a restaurant.</div>';return;}
+  list.innerHTML=foodLog.map(function(f){
+    return '<div class="food-item"><div><div class="fi-name">'+f.name+'</div><div class="fi-macros">'+f.cal+' cal · P:'+f.pro+'g · C:'+f.carb+'g · F:'+f.fat+'g</div></div><button class="fi-del" onclick="removeFood('+f.id+')">✕</button></div>';
+  }).join('');
+}
+
+// ---- RESTAURANTS ----
+var activeRestTab='Chipotle';
+
+function renderRestTabs(){
+  var tabs=document.getElementById('rest-tabs');
+  var panels=document.getElementById('rest-panels');
+  tabs.innerHTML='';
+  panels.innerHTML='';
+  Object.keys(RESTAURANTS).forEach(function(rName){
+    var btn=document.createElement('button');
+    btn.className='rest-tab'+(activeRestTab===rName?' active':'');
+    btn.textContent=rName;
+    btn.onclick=(function(n){return function(){activeRestTab=n;renderRestTabs();};})(rName);
+    tabs.appendChild(btn);
+    var r=RESTAURANTS[rName];
+    var pdiv=document.createElement('div');
+    pdiv.className='rest-panel'+(activeRestTab===rName?' active':'');
+    if(r.type==='builder'){
+      pdiv.innerHTML=renderChipotleBuilder();
+    } else {
+      pdiv.innerHTML=renderMenuItems(rName, r.items);
+    }
+    panels.appendChild(pdiv);
+  });
+}
+
+function renderMenuItems(rName, items){
+  return items.map(function(item,i){
+    return '<div class="rest-item" onclick="addRestItem(\''+rName+'\','+i+')"><div class="ri-name">'+item.n+'</div><div class="ri-macros">'+item.cal+' cal · P:'+item.p+'g · C:'+item.c+'g · F:'+item.f+'g</div></div>';
+  }).join('');
+}
+
+function addRestItem(rName, idx){
+  var item=RESTAURANTS[rName].items[idx];
+  foodLog.push({id:logId++, name:rName+': '+item.n, cal:item.cal, pro:item.p, carb:item.c, fat:item.f});
+  saveState();
+  renderFoodLog();
+  showTab('food');
+  alert('Added: '+item.n);
+}
+
+function renderChipotleBuilder(){
+  var r=RESTAURANTS['Chipotle'];
+  var tot={cal:0,p:0,c:0,f:0};
+  if(chipotleBase){var b=r.bases.find(function(x){return x.n===chipotleBase;});if(b){tot.cal+=b.cal;tot.p+=b.p;tot.c+=b.c;tot.f+=b.f;}}
+  if(chipotleProtein){var pr=r.proteins.find(function(x){return x.n===chipotleProtein;});if(pr){tot.cal+=pr.cal;tot.p+=pr.p;tot.c+=pr.c;tot.f+=pr.f;}}
+  chipotleExtras.forEach(function(en){var e=r.extras.find(function(x){return x.n===en;});if(e){tot.cal+=e.cal;tot.p+=e.p;tot.c+=e.c;tot.f+=e.f;}});
+  var html='<div class="chipotle-builder"><h4>🌯 BUILD YOUR CHIPOTLE</h4>';
+  html+='<div class="cg-section"><div class="cg-label">Base</div><div class="cg-opts">';
+  r.bases.forEach(function(b){
+    html+='<button class="cg-opt'+(chipotleBase===b.n?' sel':'')+'" onclick="setChipBase(\''+b.n+'\')">'+b.n+'</button>';
+  });
+  html+='</div></div>';
+  html+='<div class="cg-section"><div class="cg-label">Protein</div><div class="cg-opts">';
+  r.proteins.forEach(function(p){
+    html+='<button class="cg-opt'+(chipotleProtein===p.n?' sel':'')+'" onclick="setChipProtein(\''+p.n+'\')">'+p.n+'</button>';
+  });
+  html+='</div></div>';
+  html+='<div class="cg-section"><div class="cg-label">Extras (tap to add/remove)</div><div class="cg-opts">';
+  r.extras.forEach(function(e){
+    var sel=chipotleExtras.indexOf(e.n)>-1;
+    html+='<button class="cg-opt'+(sel?' sel-extra':'')+'" onclick="toggleChipExtra(\''+e.n+'\')">'+e.n+'</button>';
+  });
+  html+='</div></div>';
+  html+='<div class="chipotle-total">';
+  html+='<div class="ct-macro"><div class="v">'+tot.cal+'</div><div class="l">Calories</div></div>';
+  html+='<div class="ct-macro"><div class="v">'+tot.p+'g</div><div class="l">Protein</div></div>';
+  html+='<div class="ct-macro"><div class="v">'+tot.c+'g</div><div class="l">Carbs</div></div>';
+  html+='<div class="ct-macro"><div class="v">'+tot.f+'g</div><div class="l">Fat</div></div>';
+  html+='</div>';
+  html+='<button class="btn-add-rest" onclick="addChipotleToLog()">+ Add to Food Log</button>';
+  html+='</div>';
+  return html;
+}
+
+function setChipBase(n){ chipotleBase=(chipotleBase===n?null:n); renderRestTabs(); }
+function setChipProtein(n){ chipotleProtein=(chipotleProtein===n?null:n); renderRestTabs(); }
+function toggleChipExtra(n){
+  var idx=chipotleExtras.indexOf(n);
+  if(idx>-1) chipotleExtras.splice(idx,1); else chipotleExtras.push(n);
+  renderRestTabs();
+}
+
+function addChipotleToLog(){
+  var r=RESTAURANTS['Chipotle'];
+  var tot={cal:0,p:0,c:0,f:0};
+  var parts=[];
+  if(chipotleBase){parts.push(chipotleBase);var b=r.bases.find(function(x){return x.n===chipotleBase;});if(b){tot.cal+=b.cal;tot.p+=b.p;tot.c+=b.c;tot.f+=b.f;}}
+  if(chipotleProtein){parts.push(chipotleProtein);var pr=r.proteins.find(function(x){return x.n===chipotleProtein;});if(pr){tot.cal+=pr.cal;tot.p+=pr.p;tot.c+=pr.c;tot.f+=pr.f;}}
+  chipotleExtras.forEach(function(en){parts.push(en);var e=r.extras.find(function(x){return x.n===en;});if(e){tot.cal+=e.cal;tot.p+=e.p;tot.c+=e.c;tot.f+=e.f;}});
+  if(parts.length===0){alert('Select at least a base or protein.');return;}
+  foodLog.push({id:logId++, name:'Chipotle: '+parts.join('+'), cal:tot.cal, pro:tot.p, carb:tot.c, fat:tot.f});
+  saveState();
+  chipotleBase=null; chipotleProtein=null; chipotleExtras=[];
+  renderFoodLog();
+  renderRestTabs();
+  showTab('food');
+}
+
+// ---- WEIGH-IN ----
+function addWeighIn(){
+  var wk=parseInt(document.getElementById('wi-week').value);
+  var wt=parseFloat(document.getElementById('wi-weight').value);
+  if(!wk||!wt||wk<1||wk>12){alert('Enter valid week (1-12) and weight.');return;}
+  weighIns[wk]=wt;
+  saveState();
+  renderWeighChart();
+  renderWeighList();
+}
+
+function renderWeighChart(){
+  var ctx=document.getElementById('weigh-chart').getContext('2d');
+  if(weighChart){weighChart.destroy();weighChart=null;}
+  var labels=[],data=[];
+  for(var i=1;i<=12;i++){labels.push('W'+i);data.push(weighIns[i]||null);}
+  weighChart=new Chart(ctx,{
+    type:'line',
+    data:{labels:labels,datasets:[{label:'Weight (lbs)',data:data,borderColor:'#7b6eff',backgroundColor:'#7b6eff22',tension:.3,fill:true,pointRadius:5,pointBackgroundColor:'#7b6eff',spanGaps:true}]},
+    options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{labels:{color:'#94a3b8',font:{size:11}}}},scales:{x:{ticks:{color:'#64748b'},grid:{color:'#1e1e35'}},y:{ticks:{color:'#64748b'},grid:{color:'#1e1e35'}}}}
+  });
+}
+
+function renderWeighList(){
+  var list=document.getElementById('weigh-list');
+  var entries=[];
+  for(var i=1;i<=12;i++){if(weighIns[i]){entries.push({w:i,v:weighIns[i]});}}
+  list.innerHTML=entries.map(function(e){
+    return '<div style="background:#111320;border:1px solid #1e1e35;border-radius:8px;padding:8px 12px;font-size:.78rem;display:flex;justify-content:space-between"><span style="color:#94a3b8">Week '+e.w+'</span><span style="color:#7b6eff;font-weight:700">'+e.v+' lbs</span></div>';
+  }).join('');
+}
+
+// ---- TABS ----
+function showTab(name){
+  document.querySelectorAll('.tab-content').forEach(function(t){t.classList.remove('active');});
+  document.querySelectorAll('nav button').forEach(function(b){b.classList.remove('active');});
+  document.getElementById('tab-'+name).classList.add('active');
+  var labels={workout:'Workout',food:'Food Log',weigh:'Weigh-In',log:'Session Log'};
+  document.querySelectorAll('nav button').forEach(function(b){
+    if(b.textContent.trim()===labels[name]) b.classList.add('active');
+  });
+  if(name==='weigh'){ setTimeout(renderWeighChart,100); }
+  if(name==='log'){ refreshLogTab(); }
+}
+
+init();
+
+// ---- FOOD SCAN ----
+var scanResult = null;
+
+function handleScanFile(evt){
+  var file = evt.target.files[0];
+  if(!file) return;
+  var reader = new FileReader();
+  reader.onload = function(e){
+    var dataUrl = e.target.result;
+    // Show preview
+    var preview = document.getElementById('scan-preview');
+    preview.src = dataUrl;
+    preview.classList.add('show');
+    document.getElementById('scan-box').classList.add('has-image');
+    document.getElementById('scan-placeholder').style.display='none';
+    document.getElementById('scan-results').classList.remove('show');
+    document.getElementById('scan-error').classList.remove('show');
+    // Analyze
+    analyzeFood(dataUrl);
+  };
+  reader.readAsDataURL(file);
+  // Reset input so same file can be re-selected
+  evt.target.value='';
+}
+
+function analyzeFood(dataUrl){
+  var loading = document.getElementById('scan-loading');
+  var errEl = document.getElementById('scan-error');
+  var results = document.getElementById('scan-results');
+  loading.classList.add('show');
+  errEl.classList.remove('show');
+  results.classList.remove('show');
+
+  // Convert data URL to the format askClaude expects
+  // Strip the "data:image/...;base64," prefix to get raw base64
+  var base64 = dataUrl.split(',')[1];
+  var mimeMatch = dataUrl.match(/data:([^;]+);/);
+  var mime = mimeMatch ? mimeMatch[1] : 'image/jpeg';
+
+  if(!(window.cowork && window.cowork.askClaude)){
+    loading.classList.remove('show');
+    showScanError('AI photo scan only works inside Claude on the computer. Log it manually below, or use the restaurant menus.');
+    return;
+  }
+
+  var prompt = [
+    'You are a nutrition expert. Analyze this food image and estimate the nutritional content.',
+    'Respond ONLY with a JSON object in this exact format (no markdown, no explanation):',
+    '{"name":"Food name here","cal":000,"pro":00,"carb":00,"fat":00,"note":"Brief note about portion size assumptions and confidence level"}',
+    'Use realistic estimates for a typical serving size visible in the image.',
+    'If you see multiple foods (like a full meal), estimate the total.',
+    'If the image is unclear, give your best estimate and note it.'
+  ].join(' ');
+
+  window.cowork.askClaude(prompt, [
+    { type: 'image', data: base64, mimeType: mime }
+  ]).then(function(response){
+    loading.classList.remove('show');
+    try {
+      // Parse the JSON response
+      var text = typeof response === 'string' ? response : (response.content || response.text || JSON.stringify(response));
+      // Extract JSON from the response
+      var jsonMatch = text.match(/\{[\s\S]*\}/);
+      if(!jsonMatch) throw new Error('No JSON found');
+      var data = JSON.parse(jsonMatch[0]);
+      scanResult = {
+        name: data.name || 'Unknown food',
+        cal: Math.round(data.cal) || 0,
+        pro: Math.round(data.pro) || 0,
+        carb: Math.round(data.carb) || 0,
+        fat: Math.round(data.fat) || 0,
+        note: data.note || ''
+      };
+      document.getElementById('sr-name').textContent = scanResult.name;
+      document.getElementById('sr-cal').textContent = scanResult.cal;
+      document.getElementById('sr-pro').textContent = scanResult.pro + 'g';
+      document.getElementById('sr-carb').textContent = scanResult.carb + 'g';
+      document.getElementById('sr-fat').textContent = scanResult.fat + 'g';
+      document.getElementById('sr-note').textContent = scanResult.note;
+      results.classList.add('show');
+    } catch(err) {
+      showScanError('Could not parse nutrition data. Try a clearer photo.');
+    }
+  }).catch(function(err){
+    loading.classList.remove('show');
+    showScanError('Analysis failed. Check your connection and try again.');
+  });
+}
+
+function showScanError(msg){
+  var el = document.getElementById('scan-error');
+  el.textContent = '⚠️ ' + msg;
+  el.classList.add('show');
+}
+
+function addScanToLog(){
+  if(!scanResult) return;
+  foodLog.push({id:logId++, name:scanResult.name, cal:scanResult.cal, pro:scanResult.pro, carb:scanResult.carb, fat:scanResult.fat});
+  saveState();
+  renderFoodLog();
+  resetScan();
+  showTab('food');
+}
+
+function editScanResult(){
+  if(!scanResult) return;
+  // Pre-fill the manual form with scan values
+  document.getElementById('fi-name').value = scanResult.name;
+  document.getElementById('fi-cal').value = scanResult.cal;
+  document.getElementById('fi-pro').value = scanResult.pro;
+  document.getElementById('fi-carb').value = scanResult.carb;
+  document.getElementById('fi-fat').value = scanResult.fat;
+  // Scroll to form
+  document.querySelector('.food-form').scrollIntoView({behavior:'smooth', block:'start'});
+}
+
+// ---- OFFLINE / PWA ----
+if('serviceWorker' in navigator){
+  navigator.serviceWorker.register('sw.js').catch(function(){/* offline caching unavailable; app still works online */});
+}
+
+function resetScan(){
+  scanResult = null;
+  document.getElementById('scan-preview').classList.remove('show');
+  document.getElementById('scan-preview').src = '';
+  document.getElementById('scan-box').classList.remove('has-image');
+  document.getElementById('scan-placeholder').style.display = '';
+  document.getElementById('scan-results').classList.remove('show');
+  document.getElementById('scan-error').classList.remove('show');
+  document.getElementById('scan-loading').classList.remove('show');
+}
+</script>
+</body>
+</html>
