@@ -12,6 +12,9 @@
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="Dunk Protocol">
 <script src="chart.umd.js"></script>
+<script src="firebase-app-compat.js"></script>
+<script src="firebase-auth-compat.js"></script>
+<script src="firebase-firestore-compat.js"></script>
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
 body{background:#0f0f13;color:#e8e8e8;font-family:'Segoe UI',system-ui,sans-serif;min-height:100vh}
@@ -202,6 +205,31 @@ nav button.active{color:#7b6eff}
   </div>
   <span class="badge">BETA</span>
 </header>
+<div id="sync-bar" style="display:flex;align-items:center;justify-content:space-between;gap:8px;padding:7px 16px;background:#0d1520;border-bottom:1px solid #1e2d3d;font-size:.7rem;color:#64748b">
+  <span id="sync-status">Checking sync status…</span>
+  <button id="sync-action" onclick="openSyncModal()" style="background:none;border:1px solid #2a2a4a;color:#7b6eff;font-size:.68rem;font-weight:600;padding:3px 9px;border-radius:6px;cursor:pointer">Enable cloud sync</button>
+</div>
+<div class="modal-overlay" id="sync-modal">
+  <div class="modal">
+    <h3>Cloud sync</h3>
+    <p class="sub">Sign in with your email to sync logs across your phone and computer. No password — we'll email you a one-tap link.</p>
+    <div id="sync-modal-form">
+      <div class="modal-reason">
+        <label>Email address</label>
+        <input type="email" id="sync-email" placeholder="you@example.com" style="width:100%;background:#0f0f1a;border:1px solid #2a2a4a;border-radius:7px;color:#e8e8e8;font-size:.85rem;padding:9px">
+      </div>
+      <div id="sync-modal-msg" style="font-size:.72rem;color:#64748b;margin-top:8px"></div>
+      <div class="modal-btns">
+        <button class="btn-cancel" onclick="closeSyncModal()">Cancel</button>
+        <button class="btn-confirm" onclick="sendSyncLink()">Send me a link</button>
+      </div>
+    </div>
+    <div id="sync-modal-sent" style="display:none">
+      <div style="font-size:.8rem;color:#4ade80;padding:8px 0">✓ Check your email and open the link on this device.</div>
+      <div class="modal-btns"><button class="btn-cancel" onclick="closeSyncModal()">Close</button></div>
+    </div>
+  </div>
+</div>
 <nav>
   <button class="active" onclick="showTab('workout')">Workout</button>
   <button onclick="showTab('food')">Food Log</button>
@@ -378,27 +406,161 @@ var TARGETS = {cal:3000, protein:175, carbs:350, fat:90};
 
 // ---- PERSISTENCE ----
 var STORAGE_KEY='dunk-protocol-v1';
+function currentSnapshot(){
+  return {
+    currentWeek:currentWeek, foodLog:foodLog, logId:logId, foodDate:getTodayStr(),
+    weighIns:weighIns, COMPLETION:COMPLETION, ALT_LOG:ALT_LOG, updatedAt:Date.now()
+  };
+}
+function applyStateVars(s){
+  if(s.currentWeek>=1&&s.currentWeek<=12) currentWeek=s.currentWeek;
+  if(typeof s.logId==='number') logId=s.logId;
+  if(Array.isArray(s.weighIns)&&s.weighIns.length===13) weighIns=s.weighIns;
+  if(s.COMPLETION) COMPLETION=s.COMPLETION;
+  if(s.ALT_LOG) ALT_LOG=s.ALT_LOG;
+  // Food log is a daily log — carry it over only if saved today
+  if(Array.isArray(s.foodLog)&&s.foodDate===getTodayStr()) foodLog=s.foodLog;
+}
 function saveState(){
-  try{
-    localStorage.setItem(STORAGE_KEY, JSON.stringify({
-      currentWeek:currentWeek, foodLog:foodLog, logId:logId, foodDate:getTodayStr(),
-      weighIns:weighIns, COMPLETION:COMPLETION, ALT_LOG:ALT_LOG
-    }));
-  }catch(e){/* storage full or unavailable — app still works, just won't persist */}
+  var snapshot=currentSnapshot();
+  try{ localStorage.setItem(STORAGE_KEY, JSON.stringify(snapshot)); }catch(e){/* storage full or unavailable — app still works, just won't persist */}
+  queueCloudPush(snapshot);
 }
 function loadState(){
   try{
     var raw=localStorage.getItem(STORAGE_KEY);
     if(!raw) return;
-    var s=JSON.parse(raw);
-    if(s.currentWeek>=1&&s.currentWeek<=12) currentWeek=s.currentWeek;
-    if(typeof s.logId==='number') logId=s.logId;
-    if(Array.isArray(s.weighIns)&&s.weighIns.length===13) weighIns=s.weighIns;
-    if(s.COMPLETION) COMPLETION=s.COMPLETION;
-    if(s.ALT_LOG) ALT_LOG=s.ALT_LOG;
-    // Food log is a daily log — carry it over only if saved today
-    if(Array.isArray(s.foodLog)&&s.foodDate===getTodayStr()) foodLog=s.foodLog;
+    applyStateVars(JSON.parse(raw));
   }catch(e){/* corrupt state — start fresh rather than crash */}
+}
+
+// ---- CLOUD SYNC ----
+var SYNC_EMAIL_KEY='dunk-protocol-sync-email';
+var fbAuth=null, fbDb=null, syncUser=null, syncUnsub=null, pushTimer=null, applyingRemote=false;
+
+function initFirebase(){
+  try{
+    var firebaseConfig={
+      apiKey:"AIzaSyBf2qb0fCDXDr6VBklb25jwkLUedSU23js",
+      authDomain:"dunk-protocol.firebaseapp.com",
+      projectId:"dunk-protocol",
+      storageBucket:"dunk-protocol.firebasestorage.app",
+      messagingSenderId:"783957258532",
+      appId:"1:783957258532:web:5f5ebf46a5427462b7c3b1"
+    };
+    firebase.initializeApp(firebaseConfig);
+    fbAuth=firebase.auth();
+    fbDb=firebase.firestore();
+    try{ fbDb.enablePersistence({synchronizeTabs:true}); }catch(e){/* multiple tabs or unsupported — sync still works online */}
+    completeSignInIfNeeded();
+    fbAuth.onAuthStateChanged(handleAuthChange);
+  }catch(e){
+    var statusEl=document.getElementById('sync-status');
+    if(statusEl) statusEl.textContent='Cloud sync unavailable offline';
+  }
+}
+
+function completeSignInIfNeeded(){
+  if(!fbAuth.isSignInWithEmailLink(window.location.href)) return;
+  var email=window.localStorage.getItem(SYNC_EMAIL_KEY);
+  if(!email) email=window.prompt('Confirm the email you used to request the sync link:');
+  if(!email) return;
+  fbAuth.signInWithEmailLink(email, window.location.href).then(function(){
+    window.localStorage.removeItem(SYNC_EMAIL_KEY);
+    history.replaceState(null, '', window.location.pathname);
+  }).catch(function(err){
+    var statusEl=document.getElementById('sync-status');
+    if(statusEl) statusEl.textContent='Sign-in link expired — request a new one.';
+  });
+}
+
+function handleAuthChange(user){
+  syncUser=user;
+  renderSyncBar();
+  if(syncUnsub){ syncUnsub(); syncUnsub=null; }
+  if(user) attachSyncListener(user.uid);
+}
+
+function renderSyncBar(){
+  var statusEl=document.getElementById('sync-status');
+  var actionEl=document.getElementById('sync-action');
+  if(!statusEl||!actionEl) return;
+  if(syncUser){
+    statusEl.textContent='☁ Synced as '+syncUser.email;
+    actionEl.textContent='Sign out';
+    actionEl.onclick=signOutSync;
+  } else {
+    statusEl.textContent='Not synced — data stays on this device only';
+    actionEl.textContent='Enable cloud sync';
+    actionEl.onclick=openSyncModal;
+  }
+}
+
+function openSyncModal(){
+  document.getElementById('sync-modal-form').style.display='';
+  document.getElementById('sync-modal-sent').style.display='none';
+  document.getElementById('sync-modal-msg').textContent='';
+  document.getElementById('sync-email').value='';
+  document.getElementById('sync-modal').classList.add('open');
+}
+function closeSyncModal(){ document.getElementById('sync-modal').classList.remove('open'); }
+
+function sendSyncLink(){
+  if(!fbAuth){ document.getElementById('sync-modal-msg').textContent='Cloud sync unavailable right now.'; return; }
+  var email=document.getElementById('sync-email').value.trim();
+  if(!email||email.indexOf('@')<0){ document.getElementById('sync-modal-msg').textContent='Enter a valid email.'; return; }
+  var actionCodeSettings={ url:window.location.origin+window.location.pathname, handleCodeInApp:true };
+  document.getElementById('sync-modal-msg').textContent='Sending…';
+  fbAuth.sendSignInLinkToEmail(email, actionCodeSettings).then(function(){
+    window.localStorage.setItem(SYNC_EMAIL_KEY, email);
+    document.getElementById('sync-modal-form').style.display='none';
+    document.getElementById('sync-modal-sent').style.display='';
+  }).catch(function(err){
+    document.getElementById('sync-modal-msg').textContent='Could not send link: '+err.message;
+  });
+}
+
+function signOutSync(){ if(fbAuth) fbAuth.signOut(); }
+
+function attachSyncListener(uid){
+  var docRef=fbDb.collection('users').doc(uid).collection('state').doc('data');
+  syncUnsub=docRef.onSnapshot(function(snap){
+    if(snap.metadata.hasPendingWrites) return; // our own optimistic write echoing back
+    var remote=snap.data();
+    var local=null;
+    try{ var raw=localStorage.getItem(STORAGE_KEY); if(raw) local=JSON.parse(raw); }catch(e){}
+    if(remote && (!local || (remote.updatedAt||0) > (local.updatedAt||0))){
+      applyingRemote=true;
+      applyStateVars(remote);
+      try{ localStorage.setItem(STORAGE_KEY, JSON.stringify(remote)); }catch(e){}
+      applyingRemote=false;
+      renderAll();
+    } else if(!remote && local){
+      pushStateToCloud(local);
+    } else if(local && (!remote || (local.updatedAt||0) > (remote.updatedAt||0))){
+      pushStateToCloud(local);
+    }
+  }, function(err){
+    var statusEl=document.getElementById('sync-status');
+    if(statusEl) statusEl.textContent='Sync error: '+err.message;
+  });
+}
+
+function queueCloudPush(snapshot){
+  if(!syncUser||applyingRemote) return;
+  if(pushTimer) clearTimeout(pushTimer);
+  pushTimer=setTimeout(function(){ pushStateToCloud(snapshot); }, 600);
+}
+
+function pushStateToCloud(stateObj){
+  if(!syncUser||!fbDb) return;
+  fbDb.collection('users').doc(syncUser.uid).collection('state').doc('data').set(stateObj).catch(function(err){
+    console.error('sync push failed', err);
+  });
+}
+
+function renderAll(){
+  renderWeekBtns(); renderDayTabs(); renderWorkout(); renderFoodLog(); renderRestTabs();
 }
 
 function wKey(day){ return 'W'+currentWeek+'D'+day; }
@@ -1274,6 +1436,7 @@ function showTab(name){
 }
 
 init();
+initFirebase();
 
 // ---- FOOD SCAN ----
 var scanResult = null;
