@@ -272,6 +272,37 @@ nav button.active{color:var(--accent)}
 .rest-timer .rest-time{font-size:1.2rem;font-weight:800;color:#fff;font-variant-numeric:tabular-nums}
 .rest-timer button{margin-left:0;background:rgba(255,255,255,.08);border:1px solid var(--border);color:var(--text);font-size:var(--fs-fine);font-weight:600;padding:0 12px;border-radius:8px;min-height:38px;cursor:pointer}
 .rest-timer button:last-child{margin-left:auto}
+/* ===== PHASE 2 ===== */
+/* TEST DAY CARD */
+.test-day{background:linear-gradient(135deg,#2a1a42,#1a1a3e);border:1px solid var(--accent);border-radius:12px;padding:14px 16px;margin-bottom:12px}
+.test-day h4{font-size:var(--fs-sm);color:#c3bcff;font-weight:800;margin-bottom:6px;display:flex;align-items:center;gap:6px}
+.test-day p{font-size:var(--fs-fine);color:var(--text-dim);line-height:1.5;margin-bottom:10px}
+.test-day ol{padding-left:18px;font-size:var(--fs-fine);color:var(--text-dim);line-height:1.7;margin-bottom:10px}
+.test-entry{display:flex;gap:6px;flex-wrap:wrap;align-items:center}
+.test-entry select,.test-entry input{background:#0f0f1a;border:1px solid var(--border);border-radius:7px;color:var(--text);font-size:var(--fs-sm);padding:8px 9px;min-height:40px}
+.test-entry input{width:90px}
+.test-entry button{background:var(--accent);border:none;color:#fff;font-size:var(--fs-fine);font-weight:700;padding:0 14px;border-radius:8px;min-height:40px;cursor:pointer}
+.test-day-done{font-size:var(--fs-fine);color:var(--green);font-weight:700}
+/* PROGRESS HEADLINE */
+.progress-headline{display:flex;align-items:baseline;gap:10px;background:#111320;border:1px solid var(--border-subtle);border-radius:10px;padding:14px 16px;margin-bottom:10px}
+.progress-headline .v{font-size:1.7rem;font-weight:800;color:#fff}
+.progress-headline .d{font-size:var(--fs-md);font-weight:700}
+.progress-headline .d.pos{color:var(--green)}
+.progress-headline .d.neg{color:var(--text-faint)}
+.progress-headline .l{font-size:var(--fs-fine);color:var(--text-faint);margin-left:auto;text-align:right}
+.empty-hint{font-size:var(--fs-fine);color:var(--text-faint);text-align:center;padding:18px;background:#111320;border:1px dashed var(--border);border-radius:10px;margin-bottom:10px}
+/* ADHERENCE */
+.streak-row{display:flex;gap:8px;margin-bottom:12px}
+.streak-tile{flex:1;background:#111320;border:1px solid var(--border-subtle);border-radius:10px;padding:11px;text-align:center}
+.streak-tile .v{font-size:1.3rem;font-weight:800;color:var(--accent)}
+.streak-tile .l{font-size:.62rem;color:var(--text-faint);letter-spacing:.3px;text-transform:uppercase;margin-top:2px}
+.wk-adh{background:#111320;border:1px solid var(--border-subtle);border-radius:9px;padding:9px 12px;margin-bottom:6px;display:flex;align-items:center;gap:10px}
+.wk-adh .wk-adh-label{font-size:var(--fs-fine);color:var(--text-dim);font-weight:700;min-width:78px}
+.wk-adh-dots{display:flex;gap:4px}
+.wk-adh-dot{width:16px;height:16px;border-radius:4px;background:#1e1e35;flex-shrink:0}
+.log-item{background:#111320;border:1px solid var(--border-subtle);border-radius:9px;padding:10px 12px;font-size:var(--fs-fine)}
+.log-item .lhead{font-weight:700;margin-bottom:2px}
+.log-item .lsub{color:var(--text-dim)}
 </style>
 </head>
 <body>
@@ -324,13 +355,9 @@ nav button.active{color:var(--accent)}
     <svg viewBox="0 0 24 24"><path d="M5 2v8M7.5 2v4M10 2v4M7.5 6v16M5 10a2.5 2.5 0 0 0 5 0M17 2c-1.7 0-3 2.7-3 6s1.3 5 3 5v9"/></svg>
     <span>Food</span>
   </button>
-  <button data-tab="weigh" onclick="showTab('weigh')" aria-label="Weigh-in">
+  <button data-tab="progress" onclick="showTab('progress')" aria-label="Progress">
     <svg viewBox="0 0 24 24"><path d="M3 17l6-6 4 4 8-8M15 7h6v6"/></svg>
-    <span>Weigh-In</span>
-  </button>
-  <button data-tab="log" onclick="showTab('log')" aria-label="Session log">
-    <svg viewBox="0 0 24 24"><path d="M4 5h16v16H4zM4 9h16M8 3v4M16 3v4M9 15l2 2 4-4"/></svg>
-    <span>Log</span>
+    <span>Progress</span>
   </button>
 </nav>
 
@@ -419,11 +446,25 @@ nav button.active{color:var(--accent)}
 </div>
 
 <!-- WEIGH TAB -->
-<div id="tab-weigh" class="tab-content">
+<div id="tab-progress" class="tab-content">
+  <div class="section-hdr">🎯 VERTICAL JUMP</div>
+  <div id="vert-headline"></div>
+  <div class="chart-wrap"><canvas id="vert-chart"></canvas></div>
+  <div class="test-entry" style="margin-top:10px">
+    <select id="vert-type">
+      <option value="touch">Highest touch (in)</option>
+      <option value="jump">Measured vertical (in)</option>
+    </select>
+    <input type="number" id="vert-value" placeholder="e.g. 28" step="0.25">
+    <button onclick="addVertTest()">Log Test</button>
+  </div>
+  <div id="vert-list" style="margin-top:10px;display:flex;flex-direction:column;gap:5px"></div>
+
+  <div class="section-hdr" style="margin-top:20px">⚖️ BODY WEIGHT</div>
   <div class="weigh-form">
     <div>
-      <label>Week #</label>
-      <input type="number" id="wi-week" min="1" max="12" placeholder="1-12" style="width:80px">
+      <label>Week</label>
+      <input type="number" id="wi-week" min="1" max="12" style="width:80px">
     </div>
     <div>
       <label>Weight (lbs)</label>
@@ -435,17 +476,18 @@ nav button.active{color:var(--accent)}
     <canvas id="weigh-chart"></canvas>
   </div>
   <div id="weigh-list" style="margin-top:10px;display:flex;flex-direction:column;gap:5px"></div>
-</div>
 
-<!-- SESSION LOG TAB -->
-<div id="tab-log" class="tab-content">
-  <div class="section-hdr">WORKOUT COMPLETION LOG</div>
+  <div class="section-hdr" style="margin-top:20px">📅 ADHERENCE</div>
+  <div class="streak-row" id="streak-row"></div>
+  <div id="adherence-grid"></div>
+
+  <div class="section-hdr" style="margin-top:16px">SESSION NOTES</div>
   <div id="session-log-list" style="display:flex;flex-direction:column;gap:8px">
-    <div style="font-size:.78rem;color:#64748b;text-align:center;padding:20px">No sessions logged yet. Complete workouts to see logs here.</div>
+    <div class="empty-hint">No sessions logged yet. Complete workouts to see notes here.</div>
   </div>
-  <div class="section-hdr" style="margin-top:16px">EXERCISE ALTERNATIVES USED</div>
+  <div class="section-hdr" style="margin-top:16px">EXERCISE SUBSTITUTIONS</div>
   <div id="alt-log-list" style="display:flex;flex-direction:column;gap:6px">
-    <div style="font-size:.78rem;color:#64748b;text-align:center;padding:20px">No alternative exercises logged yet.</div>
+    <div class="empty-hint">No alternative exercises logged yet.</div>
   </div>
 </div>
 
@@ -524,6 +566,9 @@ var setLogs = {};          // { 'W1D0': { '0_1': [{w,r,done}, ...] } }
 var restTimer = null;      // { remaining, interval }
 var sessionChecks = {};    // ephemeral warmup/mobility check state, by dayKey
 var weekPickerOpen = false;
+var vertTests = [];        // [{date,week,type:'touch'|'jump',value,notes}]
+var vertChart = null;
+var TEST_WEEKS = [1,4,8,12];
 
 // ---- PERSISTENCE ----
 var STORAGE_KEY='dunk-protocol-v1';
@@ -531,6 +576,7 @@ function currentSnapshot(){
   return {
     schemaVersion:2,
     currentWeek:currentWeek, weekOverride:weekOverride, programStart:programStart, setLogs:setLogs,
+    vertTests:vertTests,
     foodLog:foodLog, logId:logId, foodDate:getTodayStr(),
     weighIns:weighIns, COMPLETION:COMPLETION, ALT_LOG:ALT_LOG, updatedAt:Date.now()
   };
@@ -540,6 +586,7 @@ function applyStateVars(s){
   if(typeof s.programStart==='string') programStart=s.programStart;
   if(s.weekOverride===null||(s.weekOverride>=1&&s.weekOverride<=12)) weekOverride=s.weekOverride;
   if(s.setLogs&&typeof s.setLogs==='object') setLogs=s.setLogs;
+  if(Array.isArray(s.vertTests)) vertTests=s.vertTests;
   if(s.currentWeek>=1&&s.currentWeek<=12) currentWeek=s.currentWeek;
   if(typeof s.logId==='number') logId=s.logId;
   if(Array.isArray(s.weighIns)&&s.weighIns.length===13) weighIns=s.weighIns;
@@ -1316,6 +1363,23 @@ function renderWorkout(){
   html+='<div class="workout-focus">Week '+currentWeek+' · '+phaseLabel()+'</div>';
   html+='</div>';
 
+  // Test Day — Jump Day (day 5), weeks 1/4/8/12
+  if(activeDay===5 && isTestWeek()){
+    html+='<div class="test-day"><h4>🎯 Vert Test Day</h4>';
+    if(testDoneThisWeek()){
+      html+='<p class="test-day-done">✓ Logged for Week '+currentWeek+' — see it on the Progress tab.</p>';
+    } else {
+      html+='<p>Every 4 weeks you test your vertical. Do this <b>after</b> the warmup, before the rest of the session — fresh legs, best number.</p>';
+      html+='<ol><li>Warm up fully (below)</li><li>3 max-effort jumps at a wall or backboard, full rest between</li><li>Record your best — highest point touched, or a measured vertical</li></ol>';
+      html+='<div class="test-entry">';
+      html+='<select id="td-vert-type"><option value="touch">Touch height (in)</option><option value="jump">Measured vert (in)</option></select>';
+      html+='<input type="number" id="td-vert-value" placeholder="e.g. 28" step="0.25">';
+      html+='<button onclick="logTestDayVert()">Log</button>';
+      html+='</div>';
+    }
+    html+='</div>';
+  }
+
   // Mobility/Yoga days — check-as-you-go rows (ephemeral)
   if(w.isMobility){
     html+='<div style="margin-bottom:10px;font-size:.75rem;color:#64748b">Duration: '+w.duration+'</div>';
@@ -1570,7 +1634,7 @@ function confirmAlt(){
   ALT_LOG[t.dayKey].push({orig:t.exName, used:alt.n, reason:reason, date:getTodayStr()});
   saveState();
   closeAltModal();
-  refreshLogTab();
+  refreshLogLists();
   toast('Logged: '+alt.n+' instead of '+t.exName);
 }
 
@@ -1598,37 +1662,9 @@ function confirmComplete(){
   renderHero();
   renderDayTabs();
   renderWorkout();
-  refreshLogTab();
+  refreshLogLists();
 }
 
-function refreshLogTab(){
-  // Session log
-  var sl=document.getElementById('session-log-list');
-  var all=[];
-  Object.keys(COMPLETION).forEach(function(k){
-    COMPLETION[k].forEach(function(e){ all.push({key:k, date:e.date, notes:e.notes}); });
-  });
-  if(all.length===0){
-    sl.innerHTML='<div style="font-size:.78rem;color:#64748b;text-align:center;padding:20px">No sessions logged yet.</div>';
-  } else {
-    sl.innerHTML=all.map(function(e){
-      return '<div style="background:#111320;border:1px solid #1e1e35;border-radius:9px;padding:10px 12px;font-size:.78rem"><div style="color:#4ade80;font-weight:700;margin-bottom:3px">'+e.key+' · '+e.date+'</div><div style="color:#94a3b8">'+e.notes+'</div></div>';
-    }).join('');
-  }
-  // Alt log
-  var al=document.getElementById('alt-log-list');
-  var alts=[];
-  Object.keys(ALT_LOG).forEach(function(k){
-    ALT_LOG[k].forEach(function(e){ alts.push(Object.assign({key:k},e)); });
-  });
-  if(alts.length===0){
-    al.innerHTML='<div style="font-size:.78rem;color:#64748b;text-align:center;padding:20px">No alternative exercises logged yet.</div>';
-  } else {
-    al.innerHTML=alts.map(function(e){
-      return '<div style="background:#111320;border:1px solid #1e1e35;border-radius:9px;padding:10px 12px;font-size:.78rem"><div style="color:#fb923c;font-weight:700;margin-bottom:2px">'+e.key+' · '+e.date+'</div><div style="color:#e8e8e8">'+e.orig+' → <span style="color:#4ade80">'+e.used+'</span></div><div style="color:#64748b;margin-top:2px">Reason: '+e.reason+'</div></div>';
-    }).join('');
-  }
-}
 
 // ---- FOOD ----
 function addFood(){
@@ -1778,13 +1814,16 @@ function addChipotleToLog(){
 
 // ---- WEIGH-IN ----
 function addWeighIn(){
-  var wk=parseInt(document.getElementById('wi-week').value);
+  var wkEl=document.getElementById('wi-week');
+  var wk=parseInt(wkEl.value)||currentWeek;
   var wt=parseFloat(document.getElementById('wi-weight').value);
   if(!wk||!wt||wk<1||wk>12){toast('Enter a valid week (1-12) and weight.');return;}
   weighIns[wk]=wt;
   saveState();
+  document.getElementById('wi-weight').value='';
   renderWeighChart();
   renderWeighList();
+  toast('Logged '+wt+' lbs for Week '+wk);
 }
 
 function renderWeighChart(){
@@ -1803,9 +1842,151 @@ function renderWeighList(){
   var list=document.getElementById('weigh-list');
   var entries=[];
   for(var i=1;i<=12;i++){if(weighIns[i]){entries.push({w:i,v:weighIns[i]});}}
-  list.innerHTML=entries.map(function(e){
-    return '<div style="background:#111320;border:1px solid #1e1e35;border-radius:8px;padding:8px 12px;font-size:.78rem;display:flex;justify-content:space-between"><span style="color:#94a3b8">Week '+e.w+'</span><span style="color:#7b6eff;font-weight:700">'+e.v+' lbs</span></div>';
+  list.innerHTML=entries.reverse().map(function(e){
+    return '<div class="log-item" style="display:flex;justify-content:space-between;align-items:center"><span class="lsub">Week '+e.w+'</span><span style="color:var(--accent);font-weight:700">'+e.v+' lbs</span></div>';
   }).join('');
+}
+
+// ---- VERTICAL JUMP TESTING ----
+function addVertTest(){
+  var type=document.getElementById('vert-type').value;
+  var valEl=document.getElementById('vert-value');
+  var val=parseFloat(valEl.value);
+  if(!val||val<=0){toast('Enter a valid measurement in inches.');return;}
+  vertTests.push({date:getTodayStr(), week:currentWeek, type:type, value:val});
+  vertTests.sort(function(a,b){ return new Date(a.date)-new Date(b.date); });
+  saveState();
+  valEl.value='';
+  renderVertHeadline(); renderVertChart(); renderVertList();
+  toast('Test logged: '+val+' in');
+}
+function vertTypeLabel(t){ return t==='touch'?'Touch height':'Measured vertical'; }
+function renderVertHeadline(){
+  var el=document.getElementById('vert-headline'); if(!el) return;
+  if(vertTests.length===0){
+    el.innerHTML='<div class="empty-hint">No vertical tests yet. Log your first one below — it\'s the number that matters most.</div>';
+    return;
+  }
+  var latest=vertTests[vertTests.length-1], first=vertTests[0];
+  var html='<div class="progress-headline"><div class="v">'+latest.value+' in</div>';
+  if(vertTests.length>1){
+    var delta=latest.value-first.value, sign=delta>=0?'+':'';
+    html+='<div class="d '+(delta>=0?'pos':'neg')+'">'+sign+delta.toFixed(1)+' in</div>';
+  }
+  html+='<div class="l">'+vertTypeLabel(latest.type)+'<br>Week '+latest.week+'</div></div>';
+  el.innerHTML=html;
+}
+function renderVertChart(){
+  var canvas=document.getElementById('vert-chart'); if(!canvas) return;
+  var ctx=canvas.getContext('2d');
+  if(vertChart){ vertChart.destroy(); vertChart=null; }
+  var labels=vertTests.map(function(t){ return 'W'+t.week; });
+  var data=vertTests.map(function(t){ return t.value; });
+  vertChart=new Chart(ctx,{
+    type:'line',
+    data:{labels:labels,datasets:[{label:'Vertical (in)',data:data,borderColor:'#7b6eff',backgroundColor:'#7b6eff22',tension:.3,fill:true,pointRadius:5,pointBackgroundColor:'#7b6eff'}]},
+    options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{x:{ticks:{color:'#64748b'},grid:{color:'#1e1e35'}},y:{ticks:{color:'#64748b'},grid:{color:'#1e1e35'}}}}
+  });
+}
+function renderVertList(){
+  var list=document.getElementById('vert-list'); if(!list) return;
+  list.innerHTML=vertTests.slice().reverse().map(function(t){
+    return '<div class="log-item"><span class="lhead" style="color:var(--accent)">Week '+t.week+'</span> <span class="lsub">'+vertTypeLabel(t.type)+': '+t.value+' in · '+t.date+'</span></div>';
+  }).join('');
+}
+function isTestWeek(){ return TEST_WEEKS.indexOf(currentWeek)>-1; }
+function testDoneThisWeek(){ return vertTests.some(function(t){ return t.week===currentWeek; }); }
+function logTestDayVert(){
+  var type=document.getElementById('td-vert-type').value;
+  var val=parseFloat(document.getElementById('td-vert-value').value);
+  if(!val||val<=0){toast('Enter a valid measurement in inches.');return;}
+  vertTests.push({date:getTodayStr(), week:currentWeek, type:type, value:val});
+  vertTests.sort(function(a,b){ return new Date(a.date)-new Date(b.date); });
+  saveState();
+  toast('Vert test logged: '+val+' in — nice work');
+  renderWorkout();
+}
+
+// ---- ADHERENCE ----
+function computeStreaks(){
+  var dateSet={};
+  Object.keys(COMPLETION).forEach(function(k){ COMPLETION[k].forEach(function(e){ dateSet[e.date]=true; }); });
+  var dates=Object.keys(dateSet).map(function(d){ return new Date(d); }).sort(function(a,b){ return a-b; });
+  if(!dates.length) return {current:0,best:0};
+  var best=1, cur=1;
+  for(var i=1;i<dates.length;i++){
+    var diff=Math.round((dates[i]-dates[i-1])/86400000);
+    if(diff===1) cur++; else if(diff>1) cur=1;
+    if(cur>best) best=cur;
+  }
+  var today=new Date(); today.setHours(0,0,0,0);
+  var last=dates[dates.length-1]; last.setHours(0,0,0,0);
+  var gap=Math.round((today-last)/86400000);
+  return {current:(gap<=1?cur:0), best:best};
+}
+var TAG_COLORS={'tag-power':'#e879f9','tag-sprint':'#4ade80','tag-mob':'#38bdf8','tag-full':'#fb923c','tag-upper':'#818cf8','tag-jump':'#f87171','tag-yoga':'#34d399'};
+function renderAdherence(){
+  var streaks=computeStreaks();
+  document.getElementById('streak-row').innerHTML=
+    '<div class="streak-tile"><div class="v">'+streaks.current+'</div><div class="l">Day Streak</div></div>'+
+    '<div class="streak-tile"><div class="v">'+streaks.best+'</div><div class="l">Best Streak</div></div>';
+  var dayNames=['Mon','Tue','Wed','Thu','Fri','Sat','Sun'];
+  var html='';
+  for(var wk=12;wk>=1;wk--){
+    var done=0, dots='';
+    for(var d=0;d<7;d++){
+      var key='W'+wk+'D'+d;
+      var isDone=COMPLETION[key]&&COMPLETION[key].length>0;
+      if(isDone) done++;
+      var color=isDone?TAG_COLORS[WORKOUTS[d].tagCls]:'';
+      dots+='<div class="wk-adh-dot" style="'+(color?'background:'+color:'')+'" title="'+dayNames[d]+(isDone?' done':' not logged')+'"></div>';
+    }
+    if(done===0 && wk>currentWeek) continue;
+    html+='<div class="wk-adh"><span class="wk-adh-label">Week '+wk+'</span><div class="wk-adh-dots">'+dots+'</div><span style="margin-left:auto;font-size:.68rem;color:var(--text-faint)">'+done+'/7</span></div>';
+  }
+  document.getElementById('adherence-grid').innerHTML=html||'<div class="empty-hint">No sessions logged yet.</div>';
+}
+
+// ---- SESSION / ALT LOGS (human-readable) ----
+function humanDayKey(key){
+  var m=String(key).match(/^W(\d+)D(\d+)$/);
+  if(!m) return key;
+  var dayNames=['Monday','Tuesday','Wednesday','Thursday','Friday','Saturday','Sunday'];
+  var d=parseInt(m[2]);
+  var w=WORKOUTS[d];
+  return 'Week '+m[1]+' · '+(dayNames[d]||'')+(w?' — '+w.name:'');
+}
+function refreshLogLists(){
+  var sl=document.getElementById('session-log-list');
+  var all=[];
+  Object.keys(COMPLETION).forEach(function(k){
+    COMPLETION[k].forEach(function(e){ all.push({key:k, date:e.date, notes:e.notes}); });
+  });
+  if(all.length===0){
+    sl.innerHTML='<div class="empty-hint">No sessions logged yet. Complete workouts to see notes here.</div>';
+  } else {
+    sl.innerHTML=all.map(function(e){
+      return '<div class="log-item"><div class="lhead" style="color:var(--green)">'+humanDayKey(e.key)+'</div><div class="lsub">'+e.date+' — '+e.notes+'</div></div>';
+    }).join('');
+  }
+  var al=document.getElementById('alt-log-list');
+  var alts=[];
+  Object.keys(ALT_LOG).forEach(function(k){
+    ALT_LOG[k].forEach(function(e){ alts.push(Object.assign({key:k},e)); });
+  });
+  if(alts.length===0){
+    al.innerHTML='<div class="empty-hint">No alternative exercises logged yet.</div>';
+  } else {
+    al.innerHTML=alts.map(function(e){
+      return '<div class="log-item"><div class="lhead" style="color:var(--orange)">'+humanDayKey(e.key)+'</div><div class="lsub">'+e.orig+' → <b style="color:var(--green)">'+e.used+'</b><br>'+e.date+' · Reason: '+e.reason+'</div></div>';
+    }).join('');
+  }
+}
+function refreshProgressTab(){
+  renderVertHeadline(); renderVertChart(); renderVertList();
+  renderWeighChart(); renderWeighList();
+  renderAdherence();
+  refreshLogLists();
 }
 
 // ---- TABS ----
@@ -1826,8 +2007,11 @@ function showTab(name){
   document.querySelectorAll('#bottom-nav button').forEach(function(b){
     b.classList.toggle('active', b.getAttribute('data-tab')===name);
   });
-  if(name==='weigh'){ setTimeout(renderWeighChart,100); }
-  if(name==='log'){ refreshLogTab(); }
+  if(name==='progress'){
+    var wkEl=document.getElementById('wi-week');
+    if(wkEl&&!wkEl.value) wkEl.value=currentWeek;
+    setTimeout(refreshProgressTab,50);
+  }
   window.scrollTo(0,0);
 }
 
